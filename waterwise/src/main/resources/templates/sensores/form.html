@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Sensor IoT - WaterWise</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<!-- Navbar WaterWise -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/admin/dashboard">
+      <i class="bi bi-droplet-fill me-2"></i>
+      WaterWise Admin
+    </a>
+    <div class="navbar-nav ms-auto">
+      <a class="nav-link" href="/logout">Sair</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container-fluid mt-4">
+  <!-- Page Header -->
+  <div class="row mb-4">
+    <div class="col">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="/admin/sensores">Sensores IoT</a></li>
+          <li class="breadcrumb-item active">Novo Sensor</li>
+        </ol>
+      </nav>
+      <h1 class="h2 text-primary">
+        <i class="bi bi-cpu me-2"></i>
+        Cadastrar Novo Sensor IoT
+      </h1>
+      <p class="text-muted">
+        Configure um novo dispositivo de monitoramento para coleta de dados ambientais
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Formulário Principal -->
+    <div class="col-lg-8">
+      <form action="/admin/sensores" method="post">
+        <!-- Informações Básicas -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-info-circle text-primary me-2"></i>
+              Informações do Sensor
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="idPropriedade" class="form-label">Propriedade Rural *</label>
+                <select class="form-select" id="idPropriedade" name="idPropriedade" required>
+                  <option value="">Selecione uma propriedade</option>
+                  <!-- Propriedades serão carregadas do backend -->
+                  <option value="1">Fazenda Verde Águas - José Silva</option>
+                  <option value="2">Sítio Esperança - Maria Santos</option>
+                  <option value="3">Fazenda São João - Carlos Lima</option>
+                </select>
+                <small class="form-text text-muted">
+                  Propriedade onde o sensor será instalado
+                </small>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="idTipoSensor" class="form-label">Tipo de Sensor *</label>
+                <select class="form-select" id="idTipoSensor" name="idTipoSensor" required>
+                  <option value="">Selecione o tipo</option>
+                  <option value="1" data-unidade="%" data-desc="Monitora umidade do solo">
+                    💧 UMIDADE_SOLO (%)
+                  </option>
+                  <option value="2" data-unidade="°C" data-desc="Monitora temperatura ambiente">
+                    🌡️ TEMPERATURA_AR (°C)
+                  </option>
+                  <option value="3" data-unidade="mm" data-desc="Monitora precipitação">
+                    🌧️ PRECIPITACAO_MM (mm)
+                  </option>
+                </select>
+                <small class="form-text text-muted" id="tipoDesc">
+                  Tipo de medição que o sensor realizará
+                </small>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="modeloDispositivo" class="form-label">Modelo do Dispositivo</label>
+                <input type="text" class="form-control" id="modeloDispositivo"
+                       name="modeloDispositivo"
+                       placeholder="Ex: WaterWise-UM-2024-A1">
+                <small class="form-text text-muted">
+                  Identificação do modelo/versão do sensor
+                </small>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="dataInstalacao" class="form-label">Data de Instalação</label>
+                <input type="datetime-local" class="form-control" id="dataInstalacao"
+                       name="dataInstalacao">
+                <small class="form-text text-muted">
+                  Deixe vazio para usar data atual
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configurações Técnicas -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-gear text-info me-2"></i>
+              Configurações Técnicas
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Faixa de Operação</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" placeholder="Min"
+                         id="valorMin" readonly>
+                  <span class="input-group-text">-</span>
+                  <input type="number" class="form-control" placeholder="Max"
+                         id="valorMax" readonly>
+                  <span class="input-group-text" id="unidadeMedida">-</span>
+                </div>
+                <small class="form-text text-muted">
+                  Definida automaticamente pelo tipo de sensor
+                </small>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Frequência de Leitura</label>
+                <select class="form-select">
+                  <option value="15">A cada 15 minutos</option>
+                  <option value="30" selected>A cada 30 minutos</option>
+                  <option value="60">A cada 1 hora</option>
+                  <option value="180">A cada 3 horas</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Status Inicial</label>
+                <select class="form-select" name="statusOperacional">
+                  <option value="A" selected>🟢 Ativo</option>
+                  <option value="I">🔴 Inativo</option>
+                  <option value="M">🟡 Manutenção</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="alert alert-info border-0">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>Dica:</strong> Após a instalação, o sensor começará a enviar dados automaticamente.
+              Monitore os primeiros dados para verificar se está funcionando corretamente.
+            </div>
+          </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <a href="/admin/sensores" class="btn btn-outline-secondary">
+                  <i class="bi bi-arrow-left me-1"></i>
+                  Voltar
+                </a>
+              </div>
+              <div>
+                <button type="button" class="btn btn-outline-warning me-2" onclick="resetForm()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>
+                  Limpar
+                </button>
+                <button type="submit" class="btn btn-success">
+                  <i class="bi bi-check-circle me-1"></i>
+                  Cadastrar Sensor
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Sidebar - Informações de Ajuda -->
+    <div class="col-lg-4">
+      <!-- Preview do Sensor -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-eye text-primary me-2"></i>
+            Preview do Sensor
+          </h5>
+        </div>
+        <div class="card-body text-center">
+          <div id="sensorPreview">
+            <i class="bi bi-cpu display-1 text-muted opacity-25 mb-3"></i>
+            <h6 class="text-muted">Selecione o tipo de sensor</h6>
+            <p class="text-muted small mb-0">
+              As especificações aparecerão aqui
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tipos de Sensores Disponíveis -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-collection text-info me-2"></i>
+            Tipos Disponíveis
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-droplet text-primary me-2"></i>
+              <strong>Umidade do Solo</strong>
+            </div>
+            <p class="small text-muted mb-0">
+              Monitora a umidade do solo para detectar condições de seca ou encharcamento
+            </p>
+          </div>
+          <hr>
+          <div class="mb-3">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-thermometer text-warning me-2"></i>
+              <strong>Temperatura do Ar</strong>
+            </div>
+            <p class="small text-muted mb-0">
+              Mede a temperatura ambiente para análise de condições climáticas
+            </p>
+          </div>
+          <hr>
+          <div class="mb-0">
+            <div class="d-flex align-items-center mb-2">
+              <i class="bi bi-cloud-rain text-info me-2"></i>
+              <strong>Precipitação</strong>
+            </div>
+            <p class="small text-muted mb-0">
+              Detecta e mede a quantidade de chuva para monitoramento de enchentes
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status do Sistema -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-info-circle text-success me-2"></i>
+            Status do Sistema
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <h6 class="text-muted mb-1">Sensores Ativos</h6>
+            <h4 class="text-success mb-0">12</h4>
+          </div>
+          <div class="mb-3">
+            <h6 class="text-muted mb-1">Propriedades Monitoradas</h6>
+            <h4 class="text-primary mb-0">8</h4>
+          </div>
+          <hr>
+          <p class="small text-muted mb-0">
+            Sistema de monitoramento IoT para prevenção de enchentes em Mairiporã-SP
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Atualizar preview quando mudar o tipo de sensor
+  document.getElementById('idTipoSensor').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const unidade = selectedOption.getAttribute('data-unidade');
+    const desc = selectedOption.getAttribute('data-desc');
+    const tipoTexto = selectedOption.textContent;
+
+    const preview = document.getElementById('sensorPreview');
+    const tipoDesc = document.getElementById('tipoDesc');
+    const unidadeMedida = document.getElementById('unidadeMedida');
+
+    if (unidade && desc) {
+      preview.innerHTML = `
+                <i class="bi bi-cpu display-1 text-success mb-3"></i>
+                <h6 class="text-success">${tipoTexto}</h6>
+                <p class="text-muted small mb-0">${desc}</p>
+            `;
+      tipoDesc.textContent = desc;
+      unidadeMedida.textContent = unidade;
+
+      // Configurar faixas de operação
+      const valorMin = document.getElementById('valorMin');
+      const valorMax = document.getElementById('valorMax');
+
+      switch(this.value) {
+        case '1': // Umidade
+          valorMin.value = '0';
+          valorMax.value = '100';
+          break;
+        case '2': // Temperatura
+          valorMin.value = '-10';
+          valorMax.value = '50';
+          break;
+        case '3': // Precipitação
+          valorMin.value = '0';
+          valorMax.value = '200';
+          break;
+      }
+    } else {
+      preview.innerHTML = `
+                <i class="bi bi-cpu display-1 text-muted opacity-25 mb-3"></i>
+                <h6 class="text-muted">Selecione o tipo de sensor</h6>
+                <p class="text-muted small mb-0">As especificações aparecerão aqui</p>
+            `;
+      tipoDesc.textContent = 'Tipo de medição que o sensor realizará';
+      unidadeMedida.textContent = '-';
+      valorMin.value = '';
+      valorMax.value = '';
+    }
+  });
+
+  // Definir data atual como padrão
+  document.addEventListener('DOMContentLoaded', function() {
+    const agora = new Date();
+    agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+    document.getElementById('dataInstalacao').value = agora.toISOString().slice(0, 16);
+  });
+
+  // Resetar formulário
+  function resetForm() {
+    if (confirm('Tem certeza que deseja limpar o formulário?')) {
+      document.querySelector('form').reset();
+      const agora = new Date();
+      agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+      document.getElementById('dataInstalacao').value = agora.toISOString().slice(0, 16);
+
+      document.getElementById('sensorPreview').innerHTML = `
+                <i class="bi bi-cpu display-1 text-muted opacity-25 mb-3"></i>
+                <h6 class="text-muted">Selecione o tipo de sensor</h6>
+                <p class="text-muted small mb-0">As especificações aparecerão aqui</p>
+            `;
+    }
+  }
+</script>
+
+</body>
+</html>

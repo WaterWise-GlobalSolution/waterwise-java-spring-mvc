@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="icon" type="image/png" th:href="@{../static/assets/brand/waterwise-icone.png}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - WaterWise</title>
+    <meta name="description" content="Sistema de prevenção a enchentes">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/waterwise.css}" rel="stylesheet">
+    <style>
+        .navbar-brand { font-weight: bold; }
+        .card { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+        .badge-custom { font-size: 0.75em; }
+        .table th { font-weight: 600; }
+        footer { margin-top: 60px; }
+        .language-flag { width: 20px; height: 15px; margin-right: 8px; }
+
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar WaterWise -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/admin/dashboard}" title="Sistema de prevenção a enchentes">
+            <i class="bi bi-droplet-fill me-2"></i>
+            <span>WaterWise Admin</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-label="Menu principal">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/admin/dashboard}" title="Dashboard principal">
+                        <i class="bi bi-speedometer2 me-1"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/propriedades}" title="Gerenciar propriedades rurais">
+                        <i class="bi bi-geo-alt me-1"></i>
+                        <span>Propriedades Rurais</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/relatorio-ia}" title="Relatórios de inteligência artificial">
+                        <i class="bi bi-robot me-1"></i>
+                        <span>Relatórios IA</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/sensores}" title="Gerenciar sensores IoT">
+                        <i class="bi bi-cpu me-1"></i>
+                        <span>Sensores IoT</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/alertas}" title="Sistema de alertas">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        <span>Alertas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/notificacoes}" title="Notificações">
+                        <i class="bi bi-bell me-1"></i>
+                        <span>Notificações</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Seletor de idioma -->
+            <div class="dropdown me-3">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-label="Idioma">
+                    <i class="bi bi-translate me-1"></i>
+                    <span class="language-flag">🇧🇷</span>
+                    <span>PT</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item active" href="#">🇧🇷 Português</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">🇺🇸 English</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- User menu -->
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-label="Perfil do usuário">
+                    <i class="bi bi-person me-1"></i>
+                    <span>Admin</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><h6 class="dropdown-header">Bem-vindo</h6></li>
+                    <li><a class="dropdown-item" href="#">Perfil</a></li>
+                    <li><a class="dropdown-item" href="#">Configurações</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" th:href="@{/logout}">
+                        <i class="bi bi-box-arrow-right me-1"></i>
+                        <span>Sair</span>
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Alert Messages -->
+<div class="container-fluid mt-3" th:if="${sucesso} or ${erro}">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${sucesso}">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${sucesso}">Sucesso!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${erro}">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${erro}">Erro!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+</div>
+
+<!-- Main Content -->
+<main class="container-fluid mt-4" role="main">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 text-primary">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Dashboard de Monitoramento WaterWise
+            </h1>
+            <p class="text-muted">
+                Visão geral do sistema de prevenção a enchentes em Mairiporã-SP
+            </p>
+            <small class="text-success">
+                <i class="bi bi-check-circle me-1"></i>
+                Sistema operacional -
+                Última atualização:
+                <span th:text="${#temporals.format(#temporals.createNow(), 'HH:mm')}">14:30</span>
+            </small>
+        </div>
+    </div>
+
+    <!-- Cards de Estatísticas Principais -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-white-50 mb-1">Total de Propriedades</h6>
+                            <h2 class="display-6 mb-0 fw-bold" th:text="${estatisticas.totalPropriedades ?: 0}">0</h2>
+                            <small class="text-white-50">Monitoradas</small>
+                        </div>
+                        <i class="bi bi-geo-alt display-6 text-white opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-white-50 mb-1">Propriedades Ativas</h6>
+                            <h2 class="display-6 mb-0 fw-bold" th:text="${estatisticas.propriedadesAtivas ?: 0}">0</h2>
+                            <small class="text-white-50">Ativo</small>
+                        </div>
+                        <i class="bi bi-check-circle display-6 text-white opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-white-50 mb-1">Sensores Ativos</h6>
+                            <h2 class="display-6 mb-0 fw-bold" th:text="${estatisticas.sensoresAtivos ?: 0}">0</h2>
+                            <small class="text-white-50">Sensores IoT</small>
+                        </div>
+                        <i class="bi bi-cpu display-6 text-white opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-white-50 mb-1">Capacidade Média de Absorção</h6>
+                            <h2 class="display-6 mb-0 fw-bold"
+                                th:text="|${#numbers.formatDecimal(estatisticas.capacidadeAbsorcaoMedia ?: 0, 1, 1)}%|">0.0%</h2>
+                            <small class="text-white-50">Capacidade de Absorção Hídrica</small>
+                        </div>
+                        <i class="bi bi-droplet-half display-6 text-white opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards Específicos WaterWise -->
+    <div class="row mb-4">
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card border-0 bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body">
+                    <h6 class="card-title text-white-50 mb-1">Área Total Monitorada</h6>
+                    <h3 class="mb-1 fw-bold" th:text="|${#numbers.formatDecimal(estatisticas.areaMonitoradaTotal ?: 0, 1, 1)} hectares|">0.0 hectares</h3>
+                    <small class="text-white-50">
+                        <i class="bi bi-map me-1"></i>
+                        hectares
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card border-0 bg-gradient text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body">
+                    <h6 class="card-title text-white-50 mb-1">Impacto de Retenção</h6>
+                    <h3 class="mb-1 fw-bold" th:text="|${#numbers.formatDecimal((estatisticas.impactoRetencaoTotal ?: 0)/1000, 1, 0)}K L/h|">0K L/h</h3>
+                    <small class="text-white-50">
+                        <i class="bi bi-droplet me-1"></i>
+                        litros por hora
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card border-0 bg-gradient text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="card-body">
+                    <h6 class="card-title text-white-50 mb-1">Região de Mairiporã</h6>
+                    <h3 class="mb-1 fw-bold" th:text="|${estatisticas.regiaoMairipora ?: 0} props|">0 props</h3>
+                    <small class="text-white-50">
+                        <i class="bi bi-pin-map me-1"></i>
+                        Propriedades monitoradas na região
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 5 Propriedades -->
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h5 class="card-title mb-0 text-primary">
+                        <i class="bi bi-trophy text-warning me-2"></i>
+                        Top 5 Propriedades - Melhor Capacidade de Absorção Hídrica
+                    </h5>
+                    <p class="text-muted small mb-0 mt-1">
+                        Capacidade de Absorção Hídrica
+                    </p>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="text-center">Pos.</th>
+                                <th>Nome da Propriedade</th>
+                                <th class="text-center">Área (ha)</th>
+                                <th class="text-center">Sensores</th>
+                                <th class="text-center">Capacidade de Absorção</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="prop, iter : ${propriedades}">
+                                <td class="text-center">
+                                    <span class="badge bg-warning text-dark fw-bold" th:text="${iter.index + 1}">1</span>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong th:text="${prop.nomePropriedade}">Fazenda Exemplo</strong>
+                                        <br>
+                                        <small class="text-muted" th:text="${prop.tipoSolo ?: 'Não informado'}">Latossolo</small>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-bold" th:text="${#numbers.formatDecimal(prop.areaHectares ?: 0, 1, 1)}">50.0</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-info" th:text="${prop.totalSensores ?: 0}">3</span>
+                                    <span class="badge bg-success ms-1" th:text="${prop.sensoresAtivos ?: 0}">2</span>
+                                </td>
+                                <td class="text-center">
+                                    <div th:if="${prop.nivelDegradacao != null and prop.nivelDegradacao.capacidadeAbsorcaoPercentual != null}">
+                                        <span class="text-success fw-bold"
+                                              th:text="|${#numbers.formatDecimal(prop.nivelDegradacao.capacidadeAbsorcaoPercentual, 1, 1)}%|">45.2%</span>
+                                        <br>
+                                        <small class="text-muted" th:text="${prop.nivelDegradacao.codigoDegradacao ?: 'N/A'}">MODERADO</small>
+                                    </div>
+                                    <span th:unless="${prop.nivelDegradacao != null and prop.nivelDegradacao.capacidadeAbsorcaoPercentual != null}" class="text-muted">N/A</span>
+                                </td>
+                                <td class="text-center">
+                                    <a th:href="@{/admin/propriedades/{id}(id=${prop.idPropriedade})}"
+                                       class="btn btn-sm btn-outline-primary" title="Ver">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(propriedades)}">
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox display-1 d-block mb-3 opacity-25"></i>
+                                    <h5 class="text-muted">Nenhuma propriedade encontrada</h5>
+                                    <p class="mb-0">Cadastre propriedades para visualizar dados aqui</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações do Sistema -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h5 class="card-title mb-0 text-primary">
+                        <i class="bi bi-info-circle text-info me-2"></i>
+                        Status do Sistema
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-pin-map me-1"></i>
+                            Região de Mairiporã
+                        </h6>
+                        <p class="small text-muted mb-2">
+                            Município com 26 áreas oficiais de risco de enchentes urbanas
+                        </p>
+                        <div class="d-flex justify-content-between">
+                            <span class="small">Propriedades monitoradas na região:</span>
+                            <strong th:text="${estatisticas.regiaoMairipora ?: 0}">0</strong>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="bi bi-activity me-1"></i>
+                            Status do Sistema
+                        </h6>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small">Com Bateria Baixa:</span>
+                            <span class="badge bg-warning" th:text="${estatisticas.sensoresBateriaBaixa ?: 0}">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small">Última atualização:</span>
+                            <span class="small text-muted" th:text="${#temporals.format(#temporals.createNow(), 'HH:mm')}">14:30</span>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="text-center">
+                        <p class="small text-muted mb-2">
+                            <i class="bi bi-shield-check text-success me-1"></i>
+                            Sistema operacional
+                        </p>
+                        <button onclick="location.reload()" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-arrow-clockwise me-1"></i>
+                            Atualizar dados
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações Rápidas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0 text-primary">
+                        <i class="bi bi-lightning text-warning me-2"></i>
+                        Ações Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-lg-3 col-md-6">
+                            <a th:href="@{/admin/propriedades/novo}" class="btn btn-success w-100 py-3">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                <div>
+                                    Nova Propriedade Rural
+                                    <br><small>Gerenciamento de propriedades rurais monitoradas</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a th:href="@{/admin/propriedades}" class="btn btn-primary w-100 py-3">
+                                <i class="bi bi-list me-2"></i>
+                                <div>
+                                    Listar Propriedades
+                                    <br><small>Lista de Propriedades Rurais</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a th:href="@{/admin/relatorio-ia}" class="btn btn-info w-100 py-3">
+                                <i class="bi bi-robot me-2"></i>
+                                <div>
+                                    Relatório de IA
+                                    <br><small>Análises automáticas para otimização da retenção hídrica</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a th:href="@{/admin/propriedades/regiao/mairipora}" class="btn btn-outline-secondary w-100 py-3">
+                                <i class="bi bi-map me-2"></i>
+                                <div>
+                                    Região de Mairiporã
+                                    <br><small>Propriedades monitoradas na região</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-white border-top mt-5 py-4">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-12">
+                <p class="text-muted mb-2">
+                    <i class="bi bi-droplet-fill text-primary me-1"></i>
+                    <strong>WaterWise</strong>
+                    <span>© 2025</span>
+                </p>
+                <p class="text-muted small mb-0">
+                    <span>Sistema Inteligente de Prevenção a Enchentes - Mairiporã/SP</span>
+                </p>
+                <p class="text-muted small mt-1">
+                    <span>Versão 1.0.0</span> |
+                    <a href="#" class="text-decoration-none">Documentação</a> |
+                    <a href="#" class="text-decoration-none">Suporte</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script th:src="@{/js/main.js}"></script>
+
+<!-- JavaScript -->
+<script>
+    // Mensagens JavaScript
+    window.i18n = {
+        'message.confirmacao': 'Confirmar operação?',
+        'message.loading': 'Carregando...',
+        'message.erro.conexao': 'Erro de conexão',
+        'action.confirmar': 'Confirmar',
+        'action.cancelar': 'Cancelar'
+    };
+</script>
+
+</body>
+</html>

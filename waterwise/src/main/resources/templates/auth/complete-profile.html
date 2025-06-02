@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete seu Perfil - WaterWise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #daf1f6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .profile-card {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border-radius: 1rem;
+            border: none;
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+        }
+        .welcome-header {
+            background: #0dcaf0;
+            color: white;
+            border-radius: 1rem 1rem 0 0 !important;
+        }
+        .step-indicator {
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        .waterwise-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+        .btn-success {
+            background-color: #0dcaf0;
+            border-color: #0dcaf0;
+        }
+        .btn-success:hover {
+            background-color: #0bb8db;
+            border-color: #0bb8db;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card profile-card">
+                <!-- Header de Boas-vindas -->
+                <div class="card-header welcome-header text-center py-4">
+                    <i class="bi bi-person-plus-fill display-1 mb-3"></i>
+                    <h3 class="mb-2 waterwise-title">Bem-vindo(a) ao WaterWise!</h3>
+                    <p class="mb-0 opacity-75">
+                        Olá, <strong th:text="${userName}">Usuário</strong>!<br>
+                        Complete seu perfil para começar a usar o sistema
+                    </p>
+                </div>
+
+                <!-- Indicador de Progresso -->
+                <div class="step-indicator mx-4 mt-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                <i class="bi bi-check"></i>
+                            </div>
+                            <span class="ms-2 text-success">Login com Google</span>
+                        </div>
+                        <div class="flex-grow-1 mx-3">
+                            <div class="progress" style="height: 3px;">
+                                <div class="progress-bar bg-warning" style="width: 60%"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                <i class="bi bi-pencil"></i>
+                            </div>
+                            <span class="ms-2 text-warning">Complete o Perfil</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulário -->
+                <div class="card-body p-4">
+                    <form th:action="@{/complete-profile}" th:object="${produtor}" method="post">
+
+                        <!-- ✅ ADICIONADO: Exibir mensagens de erro globais se houver -->
+                        <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger mb-4">
+                            <h6><i class="bi bi-exclamation-triangle me-2"></i>Corrija os erros abaixo:</h6>
+                            <ul class="mb-0">
+                                <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Erro</li>
+                            </ul>
+                        </div>
+                        <!-- Email (readonly) -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-envelope me-1"></i>Email (já confirmado)
+                            </label>
+                            <input type="email" class="form-control" th:value="${userEmail}" readonly>
+                            <small class="form-text text-success">
+                                <i class="bi bi-check-circle me-1"></i>Verificado via Google
+                            </small>
+                        </div>
+
+                        <!-- Nome Completo -->
+                        <div class="mb-3">
+                            <label for="nomeCompleto" class="form-label">
+                                <i class="bi bi-person me-1"></i>Nome Completo *
+                            </label>
+                            <input type="text" class="form-control" id="nomeCompleto"
+                                   th:field="*{nomeCompleto}"
+                                   th:classappend="${#fields.hasErrors('nomeCompleto')} ? 'is-invalid' : ''"
+                                   placeholder="Seu nome completo" required>
+                            <!-- ✅ MELHORADO: Melhor exibição de erros múltiplos -->
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nomeCompleto')}">
+                                <span th:each="error : ${#fields.errors('nomeCompleto')}" th:text="${error}" class="d-block">Nome é obrigatório</span>
+                            </div>
+                        </div>
+
+                        <!-- CPF/CNPJ -->
+                        <div class="mb-3">
+                            <label for="cpfCnpj" class="form-label">
+                                <i class="bi bi-card-text me-1"></i>CPF ou CNPJ *
+                            </label>
+                            <input type="text" class="form-control" id="cpfCnpj"
+                                   th:field="*{cpfCnpj}"
+                                   th:classappend="${#fields.hasErrors('cpfCnpj')} ? 'is-invalid' : ''"
+                                   placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                                   maxlength="18" required>
+                            <!-- ✅ MELHORADO: Melhor exibição de erros múltiplos -->
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('cpfCnpj')}">
+                                <span th:each="error : ${#fields.errors('cpfCnpj')}" th:text="${error}" class="d-block">CPF/CNPJ é obrigatório</span>
+                            </div>
+                            <small class="form-text text-muted">
+                                Usado para identificação no sistema
+                            </small>
+                        </div>
+
+                        <!-- Telefone -->
+                        <div class="mb-4">
+                            <label for="telefone" class="form-label">
+                                <i class="bi bi-telephone me-1"></i>Telefone *
+                            </label>
+                            <input type="tel" class="form-control" id="telefone"
+                                   th:field="*{telefone}"
+                                   th:classappend="${#fields.hasErrors('telefone')} ? 'is-invalid' : ''"
+                                   placeholder="(11) 99999-9999" maxlength="15" required>
+                            <!-- ✅ MELHORADO: Melhor exibição de erros múltiplos -->
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('telefone')}">
+                                <span th:each="error : ${#fields.errors('telefone')}" th:text="${error}" class="d-block">Telefone é obrigatório</span>
+                            </div>
+                            <small class="form-text text-muted">
+                                Para contato sobre alertas importantes
+                            </small>
+                        </div>
+
+                        <!-- Informações sobre o Sistema -->
+                        <div class="alert alert-info border-0">
+                            <h6 class="alert-heading">
+                                <i class="bi bi-info-circle me-2"></i>Sobre o WaterWise
+                            </h6>
+                            <p class="mb-2">Sistema inteligente de prevenção a enchentes</p>
+                            <ul class="mb-0 small">
+                                <li>Monitore propriedades rurais com sensores IoT</li>
+                                <li>Receba alertas automáticos sobre condições críticas</li>
+                                <li>Contribua para a prevenção de enchentes urbanas</li>
+                            </ul>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Completar Perfil e Acessar Sistema
+                            </button>
+                            <a href="/logout" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Sair e Fazer Login Novamente
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer text-center text-muted py-3">
+                    <small>
+                        <i class="bi bi-shield-check text-success me-1"></i>
+                        Seus dados estão seguros e protegidos
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Formatação automática de CPF/CNPJ
+    document.getElementById('cpfCnpj').addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+
+        if (value.length <= 11) {
+            // CPF: 000.000.000-00
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        } else {
+            // CNPJ: 00.000.000/0000-00
+            value = value.replace(/(\d{2})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1/$2');
+            value = value.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+        }
+
+        this.value = value;
+    });
+
+    // Formatação automática de telefone
+    document.getElementById('telefone').addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        value = value.replace(/(\d{2})(\d)/, '($1) $2');
+        value = value.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
+        this.value = value;
+    });
+
+    // ✅ ADICIONADO: Debug - mostrar dados do formulário antes de enviar
+    document.querySelector('form').addEventListener('submit', function(e) {
+        console.log('📝 Enviando formulário:');
+        console.log('Nome:', document.getElementById('nomeCompleto').value);
+        console.log('CPF/CNPJ:', document.getElementById('cpfCnpj').value);
+        console.log('Telefone:', document.getElementById('telefone').value);
+    });
+</script>
+</body>
+</html>

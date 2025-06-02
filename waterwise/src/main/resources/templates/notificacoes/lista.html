@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações - WaterWise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/waterwise.css}" rel="stylesheet">
+    <style>
+        .notification-item {
+            transition: all 0.3s ease;
+            border-left: 4px solid #dee2e6;
+        }
+        .notification-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .notification-item.notification-danger { border-left-color: #dc3545; }
+        .notification-item.notification-warning { border-left-color: #ffc107; }
+        .notification-item.notification-success { border-left-color: #198754; }
+        .notification-item.notification-info { border-left-color: #0dcaf0; }
+        .notification-item.unread {
+            background: linear-gradient(90deg, rgba(13, 202, 240, 0.1) 0%, rgba(255,255,255,1) 100%);
+        }
+        .badge-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar WaterWise -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/admin/dashboard}">
+            <i class="bi bi-droplet-fill me-2"></i>WaterWise Admin
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/admin/dashboard}">
+                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+            </a>
+            <a class="nav-link active" th:href="@{/admin/notificacoes}">
+                <i class="bi bi-bell-fill me-1"></i>Notificações
+                <span id="badgeNovas" class="badge bg-danger ms-1" style="display: none;">0</span>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 text-primary">
+                <i class="bi bi-bell me-2"></i>Central de Notificações
+            </h1>
+            <p class="text-muted">Acompanhe alertas e eventos do sistema em tempo real</p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group" role="group">
+                <button onclick="atualizarNotificacoes()" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Atualizar
+                </button>
+                <button onclick="criarTeste()" class="btn btn-outline-info">
+                    <i class="bi bi-plus-circle me-1"></i>Teste
+                </button>
+                <button onclick="limparTodas()" class="btn btn-outline-danger">
+                    <i class="bi bi-trash me-1"></i>Limpar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-bell display-6"></i>
+                    <h3 id="totalNotificacoes" th:text="${total ?: 0}">0</h3>
+                    <small>Total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-exclamation-triangle display-6"></i>
+                    <h3 id="totalNovas">0</h3>
+                    <small>Não Lidas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-danger text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-exclamation display-6"></i>
+                    <h3 id="totalCriticas">0</h3>
+                    <small>Críticas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock display-6"></i>
+                    <h3 id="hojeTotal">0</h3>
+                    <small>Hoje</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Notificações -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-list-ul text-info me-2"></i>
+                Lista de Notificações
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div id="listaNotificacoes">
+                <!-- Será preenchido via JavaScript -->
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-bell-slash display-1 opacity-25"></i>
+                    <p class="mt-3">Carregando notificações...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-white border-top mt-5 py-4">
+    <div class="container text-center">
+        <p class="text-muted mb-0">
+            <i class="bi bi-droplet-fill text-primary me-1"></i>
+            <strong>WaterWise</strong> © 2025 - Sistema de Prevenção a Enchentes
+        </p>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 🔄 ATUALIZAR NOTIFICAÇÕES
+    function atualizarNotificacoes() {
+        fetch('/admin/notificacoes/api/lista')
+            .then(response => response.json())
+            .then(data => {
+                renderizarNotificacoes(data.notificacoes);
+                atualizarEstatisticas(data);
+                console.log(`✅ ${data.total} notificações carregadas`);
+            })
+            .catch(error => {
+                console.error('❌ Erro ao carregar notificações:', error);
+                document.getElementById('listaNotificacoes').innerHTML = `
+                <div class="text-center text-danger py-4">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <p class="mt-2">Erro ao carregar notificações</p>
+                </div>
+            `;
+            });
+    }
+
+    // 🎨 RENDERIZAR LISTA
+    function renderizarNotificacoes(notificacoes) {
+        const lista = document.getElementById('listaNotificacoes');
+
+        if (notificacoes.length === 0) {
+            lista.innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-bell-slash display-1 opacity-25"></i>
+                <h5 class="text-muted mt-3">Nenhuma notificação</h5>
+                <p class="mb-0">As notificações aparecerão aqui quando eventos ocorrerem</p>
+            </div>
+        `;
+            return;
+        }
+
+        lista.innerHTML = notificacoes.map(n => `
+        <div class="notification-item notification-${n.tipo.toLowerCase()} p-3 border-bottom ${!n.lida ? 'unread' : ''}"
+             onclick="marcarComoLida('${n.id}')">
+            <div class="d-flex align-items-start">
+                <div class="me-3">
+                    ${getIconeNotificacao(n.tipo, n.origem)}
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h6 class="mb-1 fw-bold">${n.titulo}</h6>
+                        <small class="text-muted">${n.timeFormatted}</small>
+                    </div>
+                    <p class="mb-2 text-muted">${n.mensagem}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-${getTipoClass(n.tipo)} badge-sm">${n.origem}</span>
+                        ${!n.lida ? '<span class="badge bg-warning badge-pulse">NOVA</span>' : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    // 🎯 ÍCONES POR TIPO
+    function getIconeNotificacao(tipo, origem) {
+        const icons = {
+            'DANGER': 'bi-exclamation-triangle-fill text-danger',
+            'WARNING': 'bi-exclamation-circle-fill text-warning',
+            'SUCCESS': 'bi-check-circle-fill text-success',
+            'INFO': 'bi-info-circle-fill text-info'
+        };
+
+        const origemIcons = {
+            'SENSOR': 'bi-cpu',
+            'ALERTA': 'bi-bell',
+            'SISTEMA': 'bi-gear',
+            'TESTE': 'bi-flask'
+        };
+
+        const baseIcon = icons[tipo.toUpperCase()] || 'bi-bell text-primary';
+        return `<i class="bi ${baseIcon} fs-4"></i>`;
+    }
+
+    // 🎨 CLASSES CSS
+    function getTipoClass(tipo) {
+        const classes = {
+            'DANGER': 'danger',
+            'WARNING': 'warning',
+            'SUCCESS': 'success',
+            'INFO': 'info'
+        };
+        return classes[tipo.toUpperCase()] || 'secondary';
+    }
+
+    // 📊 ATUALIZAR ESTATÍSTICAS
+    function atualizarEstatisticas(data) {
+        document.getElementById('totalNotificacoes').textContent = data.total;
+        document.getElementById('totalNovas').textContent = data.novas;
+
+        // Badge no navbar
+        const badge = document.getElementById('badgeNovas');
+        if (data.novas > 0) {
+            badge.textContent = data.novas;
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
+        }
+
+        // Contar críticas e de hoje
+        const criticas = data.notificacoes.filter(n => n.tipo === 'DANGER').length;
+        const hoje = data.notificacoes.filter(n =>
+            new Date(n.timestamp).toDateString() === new Date().toDateString()
+        ).length;
+
+        document.getElementById('totalCriticas').textContent = criticas;
+        document.getElementById('hojeTotal').textContent = hoje;
+    }
+
+    // ✅ MARCAR COMO LIDA
+    function marcarComoLida(id) {
+        fetch(`/admin/notificacoes/marcar-lida/${id}`, { method: 'POST' })
+            .then(() => atualizarNotificacoes())
+            .catch(error => console.error('Erro ao marcar como lida:', error));
+    }
+
+    // 🧪 CRIAR TESTE
+    function criarTeste() {
+        fetch('/admin/notificacoes/teste', { method: 'POST' })
+            .then(() => {
+                setTimeout(atualizarNotificacoes, 500);
+                showToast('Notificação de teste criada!', 'success');
+            })
+            .catch(error => console.error('Erro ao criar teste:', error));
+    }
+
+    // 🧹 LIMPAR TODAS
+    function limparTodas() {
+        if (confirm('Tem certeza que deseja limpar todas as notificações?')) {
+            fetch('/admin/notificacoes/limpar', { method: 'POST' })
+                .then(() => {
+                    atualizarNotificacoes();
+                    showToast('Notificações limpas!', 'info');
+                })
+                .catch(error => console.error('Erro ao limpar:', error));
+        }
+    }
+
+    // 🍞 TOAST DE FEEDBACK
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast show position-fixed top-0 end-0 m-3`;
+        toast.innerHTML = `
+        <div class="toast-header">
+            <i class="bi bi-bell text-${type} me-2"></i>
+            <strong class="me-auto">WaterWise</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">${message}</div>
+    `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // 🚀 INICIALIZAÇÃO
+    document.addEventListener('DOMContentLoaded', function() {
+        atualizarNotificacoes();
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(atualizarNotificacoes, 30000);
+
+        console.log('🔔 Sistema de notificações iniciado!');
+    });
+</script>
+
+</body>
+</html>

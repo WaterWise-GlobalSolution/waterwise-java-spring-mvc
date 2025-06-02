@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alertas - WaterWise</title>
+  <meta name="description" content="Sistema de prevenção a enchentes">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link th:href="@{/css/waterwise.css}" rel="stylesheet">
+  <style>
+    .navbar-brand { font-weight: bold; }
+    .card { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+    .badge-custom { font-size: 0.75em; }
+    .table th { font-weight: 600; }
+    footer { margin-top: 60px; }
+    .language-flag { width: 20px; height: 15px; margin-right: 8px; }
+  </style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar WaterWise -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand" th:href="@{/admin/dashboard}" title="Sistema de prevenção a enchentes">
+      <i class="bi bi-droplet-fill me-2"></i>
+      <span>WaterWise Admin</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-label="Menu principal">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/admin/dashboard}" title="Dashboard principal">
+            <i class="bi bi-speedometer2 me-1"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/admin/propriedades}" title="Gerenciar propriedades rurais">
+            <i class="bi bi-geo-alt me-1"></i>
+            <span>Propriedades Rurais</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/admin/relatorio-ia}" title="Relatórios de inteligência artificial">
+            <i class="bi bi-robot me-1"></i>
+            <span>Relatórios IA</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/admin/sensores}" title="Gerenciar sensores IoT">
+            <i class="bi bi-cpu me-1"></i>
+            <span>Sensores IoT</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" th:href="@{/admin/alertas}" title="Sistema de alertas">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            <span>Alertas</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/admin/propriedades/regiao/mairipora}" title="Propriedades da região de Mairiporã">
+            <i class="bi bi-map me-1"></i>
+            <span>Região Mairiporã</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Seletor de idioma -->
+      <div class="dropdown me-3">
+        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                data-bs-toggle="dropdown" aria-label="Idioma">
+          <i class="bi bi-translate me-1"></i>
+          <span class="language-flag">🇧🇷</span>
+          <span>PT</span>
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item active" href="#">🇧🇷 Português</a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="#">🇺🇸 English</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- User menu -->
+      <div class="dropdown">
+        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                data-bs-toggle="dropdown" aria-label="Perfil do usuário">
+          <i class="bi bi-person me-1"></i>
+          <span>Admin</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><h6 class="dropdown-header">Bem-vindo</h6></li>
+          <li><a class="dropdown-item" href="#">Perfil</a></li>
+          <li><a class="dropdown-item" href="#">Configurações</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" th:href="@{/logout}">
+            <i class="bi bi-box-arrow-right me-1"></i>
+            <span>Sair</span>
+          </a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Alert Messages -->
+<div class="container-fluid mt-3" th:if="${sucesso != null or erro != null}">
+  <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${sucesso}">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <span th:text="${sucesso}">Sucesso!</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+  </div>
+
+  <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${erro}">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <span th:text="${erro}">Erro!</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<main class="container-fluid mt-4" role="main">
+  <!-- Page Header -->
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="h2 text-primary">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        Alertas do Sistema
+      </h1>
+      <p class="text-muted">
+        Monitoramento de condições críticas e alertas automáticos
+      </p>
+    </div>
+    <div class="col-auto">
+      <a th:href="@{/admin/alertas/dashboard}" class="btn btn-info">
+        <i class="bi bi-graph-up me-1"></i>
+        Dashboard Alertas
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <form th:action="@{/admin/alertas}" method="get" class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Severidade</label>
+          <select class="form-select" name="severidade">
+            <option value="">Todas</option>
+            <option th:each="nivel : ${niveisSeveridade}"
+                    th:value="${nivel.codigoSeveridade}"
+                    th:selected="${severidadeSelecionada == nivel.codigoSeveridade}"
+                    th:text="${nivel.codigoSeveridade + ' - ' + nivel.descricaoSeveridade}">
+              CRITICO - Nível crítico
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Período</label>
+          <select class="form-select" name="dias">
+            <option value="">Todos</option>
+            <option value="1" th:selected="${diasSelecionados == 1}">Hoje</option>
+            <option value="7" th:selected="${diasSelecionados == 7}">Últimos 7 dias</option>
+            <option value="30" th:selected="${diasSelecionados == 30}">Últimos 30 dias</option>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-funnel me-1"></i>
+            Filtrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista de Alertas -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0">
+      <h5 class="card-title mb-0">
+        Total: <span th:text="${#lists.size(alertas)}">0</span> alertas encontrados
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <div th:if="${!#lists.isEmpty(alertas)}">
+        <div th:each="alerta : ${alertas}" class="border-bottom p-3">
+          <div class="row align-items-center">
+            <div class="col-auto">
+                            <span th:class="'badge fs-6 bg-' + ${alerta.severidadeCss ?: 'secondary'}"
+                                  th:text="${alerta.severidadeCodigo ?: 'N/A'}">CRITICO</span>
+            </div>
+            <div class="col">
+              <h6 class="mb-1" th:text="${alerta.descricaoAlerta ?: 'Descrição não disponível'}">
+                Umidade crítica do solo (28%) - capacidade de absorção severamente comprometida
+              </h6>
+              <div class="d-flex align-items-center text-muted small">
+                <i class="bi bi-clock me-1"></i>
+                <span th:text="${alerta.tempoDecorrido ?: 'Não informado'}">2 horas atrás</span>
+
+                <span class="mx-2">•</span>
+
+                <i class="bi bi-person me-1"></i>
+                <span th:text="${alerta.produtor?.nomeCompleto ?: 'Produtor não informado'}">José Silva Santos</span>
+
+                <span class="mx-2" th:if="${alerta.leitura?.sensor?.propriedade != null}">•</span>
+
+                <i class="bi bi-geo-alt me-1" th:if="${alerta.leitura?.sensor?.propriedade != null}"></i>
+                <span th:if="${alerta.leitura?.sensor?.propriedade != null}"
+                      th:text="${alerta.leitura.sensor.propriedade.nomePropriedade}">Fazenda Esperança</span>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="d-flex align-items-center">
+                                <span th:if="${alerta.isCritico != null and alerta.isCritico()}" class="badge bg-danger me-2">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    URGENTE
+                                </span>
+                <a th:href="@{/admin/alertas/{id}(id=${alerta.idAlerta})}"
+                   class="btn btn-outline-primary btn-sm">
+                  Ver Detalhes
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div th:if="${#lists.isEmpty(alertas)}" class="text-center text-muted py-5">
+        <i class="bi bi-shield-check display-1 d-block mb-3 opacity-25"></i>
+        <h5 class="text-muted">Nenhum alerta encontrado</h5>
+        <p class="mb-0">Sistema funcionando normalmente</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações Rápidas -->
+  <div class="row mt-4" th:if="${!#lists.isEmpty(alertas)}">
+    <div class="col-md-6">
+      <div class="card border-0 bg-light">
+        <div class="card-body text-center">
+          <h6 class="card-title">Ações Rápidas</h6>
+          <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <a th:href="@{/admin/alertas(severidade=CRITICO)}" class="btn btn-sm btn-danger">
+              Ver Críticos
+            </a>
+            <a th:href="@{/admin/alertas(dias=1)}" class="btn btn-sm btn-warning">
+              Alertas de Hoje
+            </a>
+            <a th:href="@{/admin/alertas/dashboard}" class="btn btn-sm btn-info">
+              Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 bg-light">
+        <div class="card-body text-center">
+          <h6 class="card-title">Estatísticas</h6>
+          <!-- Estatísticas simplificadas -->
+          <div class="row g-2">
+            <div class="col-4">
+              <div class="text-center">
+                <h5 class="mb-0 text-danger" th:text="${alertas != null ? alertas.size() : 0}">0</h5>
+                <small class="text-muted">Críticos</small>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="text-center">
+                <h5 class="mb-0 text-warning" th:text="${alertas != null ? alertas.size() : 0}">0</h5>
+                <small class="text-muted">Recentes</small>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="text-center">
+                <h5 class="mb-0 text-info" th:text="${alertas != null ? alertas.size() : 0}">0</h5>
+                <small class="text-muted">Total</small>
+              </div>
+            </div>
+          </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-white border-top mt-5 py-4">
+  <div class="container text-center">
+    <div class="row">
+      <div class="col-12">
+        <p class="text-muted mb-2">
+          <i class="bi bi-droplet-fill text-primary me-1"></i>
+          <strong>WaterWise</strong>
+          <span>© 2025</span>
+        </p>
+        <p class="text-muted small mb-0">
+          <span>Sistema Inteligente de Prevenção a Enchentes - Mairiporã/SP</span>
+        </p>
+        <p class="text-muted small mt-1">
+          <span>Versão 1.0.0</span> |
+          <a href="#" class="text-decoration-none">Documentação</a> |
+          <a href="#" class="text-decoration-none">Suporte</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script th:src="@{/js/main.js}"></script>
+
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${propriedade.idPropriedade != null ? 'Editar Propriedade' : 'Nova Propriedade'} + ' - WaterWise'">Nova Propriedade - WaterWise</title>
+    <meta name="description" content="Sistema de prevenção a enchentes">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/waterwise.css}" rel="stylesheet">
+    <style>
+        .navbar-brand { font-weight: bold; }
+        .card { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+        .badge-custom { font-size: 0.75em; }
+        .table th { font-weight: 600; }
+        footer { margin-top: 60px; }
+        .language-flag { width: 20px; height: 15px; margin-right: 8px; }
+        .is-warning {
+            border-color: #ffc107 !important;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar WaterWise -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/admin/dashboard}" title="Sistema de prevenção a enchentes">
+            <i class="bi bi-droplet-fill me-2"></i>
+            <span>WaterWise Admin</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-label="Menu principal">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/dashboard}" title="Dashboard principal">
+                        <i class="bi bi-speedometer2 me-1"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/admin/propriedades}" title="Gerenciar propriedades rurais">
+                        <i class="bi bi-geo-alt me-1"></i>
+                        <span>Propriedades Rurais</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/relatorio-ia}" title="Relatórios de inteligência artificial">
+                        <i class="bi bi-robot me-1"></i>
+                        <span>Relatórios IA</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/sensores}" title="Gerenciar sensores IoT">
+                        <i class="bi bi-cpu me-1"></i>
+                        <span>Sensores IoT</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/alertas}" title="Sistema de alertas">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        <span>Alertas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/propriedades/regiao/mairipora}" title="Propriedades da região de Mairiporã">
+                        <i class="bi bi-map me-1"></i>
+                        <span>Região Mairiporã</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Seletor de idioma -->
+            <div class="dropdown me-3">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-label="Idioma">
+                    <i class="bi bi-translate me-1"></i>
+                    <span class="language-flag">🇧🇷</span>
+                    <span>PT</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item active" href="#">🇧🇷 Português</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">🇺🇸 English</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- User menu -->
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-label="Perfil do usuário">
+                    <i class="bi bi-person me-1"></i>
+                    <span>Admin</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><h6 class="dropdown-header">Bem-vindo</h6></li>
+                    <li><a class="dropdown-item" href="#">Perfil</a></li>
+                    <li><a class="dropdown-item" href="#">Configurações</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" th:href="@{/logout}">
+                        <i class="bi bi-box-arrow-right me-1"></i>
+                        <span>Sair</span>
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Alert Messages -->
+<div class="container-fluid mt-3" th:if="${sucesso != null or erro != null}">
+    <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${sucesso}">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${sucesso}">Sucesso!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${erro}">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${erro}">Erro!</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+</div>
+
+<!-- Main Content -->
+<main class="container-fluid mt-4" role="main">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/admin/propriedades}">Propriedades Rurais</a></li>
+                    <li class="breadcrumb-item active" th:text="${propriedade.idPropriedade != null ? 'Editar' : 'Nova Propriedade'}">
+                        Nova Propriedade
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="h2 text-primary">
+                <i class="bi bi-geo-alt me-2"></i>
+                <span th:text="${propriedade.idPropriedade != null ? 'Editar Propriedade Rural' : 'Nova Propriedade Rural'}">
+                    Nova Propriedade Rural
+                </span>
+            </h1>
+            <p class="text-muted">
+                Gerenciamento de propriedades rurais monitoradas
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulário Principal -->
+        <div class="col-lg-8">
+            <form th:action="@{/admin/propriedades}" th:object="${propriedade}" method="post">
+                <input type="hidden" th:field="*{idPropriedade}" />
+
+                <!-- Informações Básicas -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            Informações Básicas
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="nomePropriedade" class="form-label">Nome da Propriedade *</label>
+                                <input type="text" class="form-control" id="nomePropriedade"
+                                       th:field="*{nomePropriedade}"
+                                       placeholder="Ex: Fazenda Verde Águas"
+                                       th:classappend="${#fields.hasErrors('nomePropriedade')} ? 'is-invalid' : ''"
+                                       required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nomePropriedade')}"
+                                     th:errors="*{nomePropriedade}">
+                                    Nome é obrigatório
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="areaHectares" class="form-label">Área (hectares) *</label>
+                                <input type="number" class="form-control" id="areaHectares"
+                                       th:field="*{areaHectares}"
+                                       step="0.01" min="0.01"
+                                       placeholder="Ex: 50.5"
+                                       th:classappend="${#fields.hasErrors('areaHectares')} ? 'is-invalid' : ''"
+                                       required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('areaHectares')}"
+                                     th:errors="*{areaHectares}">
+                                    Área é obrigatória
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="idProdutor" class="form-label">Produtor Rural *</label>
+                                <select class="form-select" id="idProdutor"
+                                        th:field="*{idProdutor}"
+                                        th:classappend="${#fields.hasErrors('idProdutor')} ? 'is-invalid' : ''"
+                                        required>
+                                    <option value="">Selecione uma opção</option>
+                                    <option th:each="produtor : ${produtores}"
+                                            th:value="${produtor.idProdutor}"
+                                            th:text="${produtor.nomeCompleto + ' - ' + produtor.cpfCnpj}">
+                                        João Silva - 123.456.789-00
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('idProdutor')}"
+                                     th:errors="*{idProdutor}">
+                                    Selecione um produtor
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="idNivelDegradacao" class="form-label">Nível de Degradação do Solo *</label>
+                                <select class="form-select" id="idNivelDegradacao"
+                                        th:field="*{idNivelDegradacao}"
+                                        th:classappend="${#fields.hasErrors('idNivelDegradacao')} ? 'is-invalid' : ''"
+                                        required>
+                                    <option value="">Selecione uma opção</option>
+                                    <option th:each="nivel : ${nivelDegradacao}"
+                                            th:value="${nivel.idNivelDegradacao}"
+                                            th:text="${nivel.nivelNumerico + ' - ' + nivel.descricaoDegradacao}"
+                                            th:data-capacidade="${nivel.capacidadeAbsorcaoPercentual}">
+                                        3 - Solo com degradação moderada
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('idNivelDegradacao')}"
+                                     th:errors="*{idNivelDegradacao}">
+                                    Selecione um nível de degradação
+                                </div>
+                                <small class="form-text text-muted">
+                                    Capacidade de Absorção Hídrica
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Localização -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-pin-map text-danger me-2"></i>
+                            Localização
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="latitude" class="form-label">Latitude (GPS) *</label>
+                                <input type="number" class="form-control" id="latitude"
+                                       th:field="*{latitude}"
+                                       step="0.000001" min="-90" max="90"
+                                       placeholder="Ex: -23.123456"
+                                       th:classappend="${#fields.hasErrors('latitude')} ? 'is-invalid' : ''"
+                                       required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('latitude')}"
+                                     th:errors="*{latitude}">
+                                    Latitude é obrigatória
+                                </div>
+                                <small class="form-text text-muted">
+                                    Ex: -23.123456 (Região de Mairiporã)
+                                </small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="longitude" class="form-label">Longitude (GPS) *</label>
+                                <input type="number" class="form-control" id="longitude"
+                                       th:field="*{longitude}"
+                                       step="0.000001" min="-180" max="180"
+                                       placeholder="Ex: -46.654321"
+                                       th:classappend="${#fields.hasErrors('longitude')} ? 'is-invalid' : ''"
+                                       required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('longitude')}"
+                                     th:errors="*{longitude}">
+                                    Longitude é obrigatória
+                                </div>
+                                <small class="form-text text-muted">
+                                    Ex: -46.654321 (Região de Mairiporã)
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-outline-info btn-sm" onclick="getCurrentLocation()">
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    Usar Minha Localização
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="openMap()">
+                                    <i class="bi bi-map me-1"></i>
+                                    Abrir Google Maps
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a th:href="@{/admin/propriedades}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i>
+                                    Voltar
+                                </a>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline-warning me-2" onclick="resetForm()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>
+                                    Limpar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    <span th:text="${propriedade.idPropriedade != null ? 'Atualizar' : 'Salvar'} + ' Propriedade'">
+                                        Salvar Propriedade
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar - Informações de Ajuda -->
+        <div class="col-lg-4">
+            <!-- Preview da Capacidade -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-droplet text-primary me-2"></i>
+                        Capacidade de Absorção Hídrica
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div id="capacidadePreview">
+                        <h2 class="text-muted mb-1">--</h2>
+                        <p class="text-muted small mb-0">Capacidade de absorção</p>
+                    </div>
+                    <div class="progress mt-3" style="height: 20px;">
+                        <div id="capacidadeBar" class="progress-bar bg-success" style="width: 0%">0%</div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        Nível de Degradação do Solo
+                    </small>
+                </div>
+            </div>
+
+            <!-- Dicas de Preenchimento -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightbulb text-warning me-2"></i>
+                        Dicas de Preenchimento
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-primary mb-2">Nome da Propriedade</h6>
+                        <p class="small text-muted">
+                            Use um nome descritivo que identifique facilmente a propriedade
+                        </p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-primary mb-2">Coordenadas GPS</h6>
+                        <p class="small text-muted">
+                            Para propriedades em Mairiporã, a latitude está entre -23.4 e -23.2
+                        </p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-primary mb-2">Nível de Degradação</h6>
+                        <p class="small text-muted">
+                            Determina a capacidade de absorção hídrica do solo
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações do Sistema -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle text-info me-2"></i>
+                        Status do Sistema
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-1">Total de Propriedades</h6>
+                        <h4 class="text-primary mb-0">8</h4>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-1">Região de Mairiporã</h6>
+                        <h4 class="text-success mb-0">5</h4>
+                    </div>
+                    <hr>
+                    <p class="small text-muted mb-0">
+                        Sistema IoT integrado para monitoramento de propriedades rurais em Mairiporã-SP, focado na prevenção de enchentes urbanas
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-white border-top mt-5 py-4">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-12">
+                <p class="text-muted mb-2">
+                    <i class="bi bi-droplet-fill text-primary me-1"></i>
+                    <strong>WaterWise</strong>
+                    <span>© 2025</span>
+                </p>
+                <p class="text-muted small mb-0">
+                    <span>Sistema Inteligente de Prevenção a Enchentes - Mairiporã/SP</span>
+                </p>
+                <p class="text-muted small mt-1">
+                    <span>Versão 1.0.0</span> |
+                    <a href="#" class="text-decoration-none">Documentação</a> |
+                    <a href="#" class="text-decoration-none">Suporte</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Custom JS -->
+<script th:src="@{/js/main.js}"></script>
+
+<script>
+    // Atualizar preview da capacidade quando mudar o nível de degradação
+    document.getElementById('idNivelDegradacao').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const capacidade = selectedOption.getAttribute('data-capacidade');
+
+        const preview = document.getElementById('capacidadePreview');
+        const bar = document.getElementById('capacidadeBar');
+
+        if (capacidade) {
+            preview.innerHTML = `
+                <h2 class="text-success mb-1">${parseFloat(capacidade).toFixed(1)}%</h2>
+                <p class="text-muted small mb-0">Capacidade de absorção</p>
+            `;
+            bar.style.width = capacidade + '%';
+            bar.textContent = parseFloat(capacidade).toFixed(0) + '%';
+        } else {
+            preview.innerHTML = `
+                <h2 class="text-muted mb-1">--</h2>
+                <p class="text-muted small mb-0">Capacidade de absorção</p>
+            `;
+            bar.style.width = '0%';
+            bar.textContent = '0%';
+        }
+    });
+
+    // Obter localização atual
+    function getCurrentLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
+                document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+            }, function(error) {
+                alert('Erro ao obter localização: ' + error.message);
+            });
+        } else {
+            alert('Geolocalização não é suportada por este navegador.');
+        }
+    }
+
+    // Abrir mapa
+    function openMap() {
+        const lat = document.getElementById('latitude').value || -23.3;
+        const lng = document.getElementById('longitude').value || -46.6;
+        const url = `https://www.google.com/maps?q=${lat},${lng}`;
+        window.open(url, '_blank');
+    }
+
+    // Resetar formulário
+    function resetForm() {
+        if (confirm('Tem certeza que deseja limpar o formulário?')) {
+            document.querySelector('form').reset();
+            document.getElementById('capacidadePreview').innerHTML = `
+                <h2 class="text-muted mb-1">--</h2>
+                <p class="text-muted small mb-0">Capacidade de absorção</p>
+            `;
+            document.getElementById('capacidadeBar').style.width = '0%';
+            document.getElementById('capacidadeBar').textContent = '0%';
+        }
+    }
+
+    // Validação em tempo real para coordenadas de Mairiporã
+    document.getElementById('latitude').addEventListener('blur', function() {
+        const lat = parseFloat(this.value);
+        if (lat && (lat < -23.4 || lat > -23.2)) {
+            this.classList.add('is-warning');
+        } else {
+            this.classList.remove('is-warning');
+        }
+    });
+
+    document.getElementById('longitude').addEventListener('blur', function() {
+        const lng = parseFloat(this.value);
+        if (lng && (lng < -46.7 || lng > -46.5)) {
+            this.classList.add('is-warning');
+        } else {
+            this.classList.remove('is-warning');
+        }
+    });
+</script>
+
+</body>
+</html>
