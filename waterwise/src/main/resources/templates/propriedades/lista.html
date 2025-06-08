@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Lista de Propriedades Rurais</title>
+    <link th:href="@{/css/templates-css/propriedades-lista.css}" rel="stylesheet" layout:fragment="page-css">
+</head>
+
+<!-- Main Content -->
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header animate-fade-in-up">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-geo-alt page-title-icon"></i>
+                    <span th:text="#{propriedades.titulo}">Propriedades Rurais</span>
+                </h1>
+                <p class="page-description" th:text="#{propriedades.descricao}">
+                    Gerenciamento de propriedades rurais monitoradas pelo sistema
+                </p>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions-card">
+                <div class="quick-actions-buttons">
+                    <a th:href="@{/admin/propriedades/novo}" class="quick-action-btn">
+                        <i class="bi bi-plus-circle"></i>
+                        <span th:text="#{propriedades.nova}">Nova Propriedade</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="filters-card animate-slide-in">
+        <div class="filters-header">
+            <h5 class="filters-title">
+                <i class="bi bi-funnel filters-icon"></i>
+                <span th:text="#{filtros.titulo}">Filtros e Busca</span>
+            </h5>
+        </div>
+        <div class="filters-body">
+            <form th:action="@{/admin/propriedades}" method="get" class="filters-form">
+                <div class="filter-group">
+                    <label class="filter-label" th:text="#{filtros.nome}">Filtrar por nome</label>
+                    <div class="search-input-group">
+                        <span class="search-icon">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="search-input" name="busca"
+                               th:value="${busca}"
+                               th:placeholder="#{propriedades.nome.placeholder}">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label" th:text="#{filtros.nivel.degradacao}">Nível de Degradação</label>
+                    <select class="filter-select" name="nivelDegradacao">
+                        <option value="" th:text="#{filtros.todos}">Todos</option>
+                        <option th:each="nivel : ${niveisDegradacao}"
+                                th:value="${nivel.nivelNumerico}"
+                                th:selected="${nivelDegradacao == nivel.nivelNumerico}"
+                                th:text="${nivel.nivelNumerico + ' - ' + nivel.codigoDegradacao}">
+                            1 - EXCELENTE
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <button type="submit" class="filter-submit-btn">
+                        <i class="bi bi-funnel"></i>
+                        <span th:text="#{filtros.aplicar}">Aplicar Filtros</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Estatísticas Rápidas -->
+    <div class="stats-grid animate-stats" th:unless="${#strings.isEmpty(titulo)}">
+        <div class="stat-card stat-primary">
+            <i class="bi bi-geo-alt stat-icon"></i>
+            <div class="stat-value" th:text="${propriedades.size()}">8</div>
+            <div class="stat-label" th:text="#{stats.propriedades.encontradas}">Propriedades Encontradas</div>
+        </div>
+        
+        <div class="stat-card stat-success">
+            <i class="bi bi-check-circle stat-icon"></i>
+            <div class="stat-value" th:text="${propriedadesAtivas ?: propriedades.size()}">8</div>
+            <div class="stat-label" th:text="#{stats.propriedades.ativas}">Propriedades Ativas</div>
+        </div>
+        
+        <div class="stat-card stat-info">
+            <i class="bi bi-cpu stat-icon"></i>
+            <div class="stat-value" th:text="${totalSensores ?: 0}">24</div>
+            <div class="stat-label" th:text="#{stats.sensores.total}">Sensores Ativos</div>
+        </div>
+        
+        <div class="stat-card stat-warning">
+            <i class="bi bi-map stat-icon"></i>
+            <div class="stat-value" th:text="${areaTotal ?: '0.0'}">250.5</div>
+            <div class="stat-label" th:text="#{stats.hectares.total}">Hectares Totais</div>
+        </div>
+    </div>
+
+    <!-- Lista de Propriedades -->
+    <div class="main-section animate-table">
+        <div class="section-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="section-title">
+                    <i class="bi bi-list-ul section-icon"></i>
+                    <span th:text="#{propriedades.lista.titulo}">Lista de Propriedades</span>
+                    <span class="badge bg-primary ms-2" th:text="${propriedades.size()}">8</span>
+                </h5>
+                <div class="view-toggle-group">
+                    <input type="radio" class="btn-check" name="viewMode" id="viewList" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary btn-sm view-toggle-btn" for="viewList" title="Visualização em Lista">
+                        <i class="bi bi-list"></i>
+                    </label>
+                    <input type="radio" class="btn-check" name="viewMode" id="viewGrid" autocomplete="off">
+                    <label class="btn btn-outline-primary btn-sm view-toggle-btn" for="viewGrid" title="Visualização em Cards">
+                        <i class="bi bi-grid-3x2"></i>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section-body">
+            <!-- Vista em Lista -->
+            <div id="listView" class="list-view">
+                <div class="table-responsive">
+                    <table class="table-modern">
+                        <thead>
+                        <tr>
+                            <th th:text="#{propriedades.nome}">Nome da Propriedade</th>
+                            <th th:text="#{propriedades.produtor}">Produtor</th>
+                            <th class="text-center" th:text="#{propriedades.area}">Área (ha)</th>
+                            <th class="text-center" th:text="#{propriedades.sensores}">Sensores</th>
+                            <th class="text-center" th:text="#{capacidade.absorcao}">Capacidade</th>
+                            <th class="text-center" th:text="#{propriedades.status}">Status</th>
+                            <th class="text-center" th:text="#{propriedades.acoes}">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="propriedade : ${propriedades}" class="table-row-modern">
+                            <td>
+                                <div class="property-info">
+                                    <div class="property-name" th:text="${propriedade.nomePropriedade}">Fazenda Verde Águas</div>
+                                    <div class="property-location">
+                                        <i class="bi bi-geo-alt location-icon"></i>
+                                        <span th:text="${propriedade.latitude ?: 0} + ', ' + ${propriedade.longitude ?: 0}">
+                                            -23.1234, -46.6543
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="producer-info">
+                                    <div class="producer-name" 
+                                         th:text="${propriedade.produtor?.nomeCompleto ?: 'N/A'}"
+                                         th:class="${propriedade.produtor?.nomeCompleto != null ? 'text-waterwise-text' : 'text-muted'}">
+                                        José Silva Santos
+                                    </div>
+                                    <div class="producer-email" th:if="${propriedade.produtor?.email != null}"
+                                         th:text="${propriedade.produtor.email}">
+                                        jose@email.com
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="area-info">
+                                    <span class="area-value" th:text="${propriedade.areaHectares ?: 0}">50.5</span>
+                                    <small class="area-unit">hectares</small>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="sensors-info">
+                                    <span class="badge sensor-badge total" th:text="${propriedade.totalSensores ?: 0}">3</span>
+                                    <span class="badge sensor-badge active" th:text="${propriedade.sensoresAtivos ?: 0}">2</span>
+                                </div>
+                                <small class="sensors-label">Total/Ativos</small>
+                            </td>
+                            <td class="text-center">
+                                <div th:if="${propriedade.nivelDegradacao != null and propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual != null}" 
+                                     class="capacity-container">
+                                    <div class="capacity-bar">
+                                        <div class="capacity-fill"
+                                             th:style="'width: ' + ${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual} + '%'"
+                                             th:data-capacity="${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual}">
+                                        </div>
+                                    </div>
+                                    <div class="capacity-text">
+                                        <span class="capacity-percentage" 
+                                              th:text="${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual ?: 0} + '%'">50%</span>
+                                        <small class="capacity-level" 
+                                               th:text="${propriedade.nivelDegradacao.codigoDegradacao}">MODERADO</small>
+                                    </div>
+                                </div>
+                                <span th:unless="${propriedade.nivelDegradacao != null and propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual != null}" 
+                                      class="text-muted">N/A</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="status-container">
+                                    <span class="status-indicator online">
+                                        <span class="status-dot"></span>
+                                        <span>Ativo</span>
+                                    </span>
+                                    <small class="status-date" 
+                                           th:text="${#temporals.format(propriedade.dataCadastro, 'dd/MM/yyyy')}">01/01/2025</small>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons">
+                                    <a th:href="@{/admin/propriedades/{id}(id=${propriedade.idPropriedade})}"
+                                       class="action-btn action-btn-primary" title="Ver detalhes">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a th:href="@{/admin/propriedades/{id}/editar(id=${propriedade.idPropriedade})}"
+                                       class="action-btn action-btn-secondary" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a th:href="@{/admin/relatorio-ia(propriedadeId=${propriedade.idPropriedade})}"
+                                       class="action-btn action-btn-info" title="Relatório IA">
+                                        <i class="bi bi-robot"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Empty State -->
+                        <tr th:if="${#lists.isEmpty(propriedades)}">
+                            <td colspan="7" class="empty-state">
+                                <i class="bi bi-inbox empty-state-icon"></i>
+                                <h5 class="empty-state-title" th:text="#{propriedades.nenhuma.encontrada}">Nenhuma propriedade encontrada</h5>
+                                <p class="empty-state-text" th:text="#{propriedades.empty.description}">Limpar filtros ou adicionar nova propriedade</p>
+                                <div class="empty-state-actions">
+                                    <a th:href="@{/admin/propriedades/novo}" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle me-1"></i>
+                                        <span th:text="#{propriedades.nova}">Nova Propriedade</span>
+                                    </a>
+                                    <a th:href="@{/admin/propriedades}" class="btn btn-outline-secondary ms-2">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>
+                                        <span th:text="#{filtros.limpar}">Limpar Filtros</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Vista em Grid -->
+            <div id="gridView" class="grid-view d-none">
+                <div class="grid-container">
+                    <div th:each="propriedade : ${propriedades}" class="property-card">
+                        <div class="property-card-header">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="property-card-title" th:text="${propriedade.nomePropriedade}">Fazenda Verde</h6>
+                                <span class="status-indicator online">
+                                    <span class="status-dot"></span>
+                                    <span>Ativo</span>
+                                </span>
+                            </div>
+                            <small class="property-card-owner" 
+                                   th:text="${propriedade.produtor?.nomeCompleto ?: 'N/A'}">José Silva</small>
+                        </div>
+                        
+                        <div class="property-card-body">
+                            <div class="property-metrics">
+                                <div class="metric-item">
+                                    <i class="bi bi-map text-primary"></i>
+                                    <strong th:text="${propriedade.areaHectares ?: 0}">50.5</strong>
+                                    <small>hectares</small>
+                                </div>
+                                <div class="metric-item">
+                                    <i class="bi bi-cpu text-info"></i>
+                                    <strong th:text="${propriedade.totalSensores ?: 0}">3</strong>
+                                    <small>sensores</small>
+                                </div>
+                                <div class="metric-item">
+                                    <i class="bi bi-droplet text-success"></i>
+                                    <strong th:if="${propriedade.nivelDegradacao != null and propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual != null}"
+                                            th:text="${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual ?: 0} + '%'">50%</strong>
+                                    <strong th:unless="${propriedade.nivelDegradacao != null and propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual != null}">N/A</strong>
+                                    <small>capacidade</small>
+                                </div>
+                            </div>
+
+                            <div th:if="${propriedade.nivelDegradacao != null and propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual != null}" 
+                                 class="capacity-progress">
+                                <div class="capacity-bar">
+                                    <div class="capacity-fill"
+                                         th:style="'width: ' + ${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual} + '%'">
+                                    </div>
+                                </div>
+                                <small class="capacity-level" 
+                                       th:text="${propriedade.nivelDegradacao.codigoDegradacao}">MODERADO</small>
+                            </div>
+                        </div>
+                        
+                        <div class="property-card-footer">
+                            <div class="card-actions">
+                                <a th:href="@{/admin/propriedades/{id}(id=${propriedade.idPropriedade})}"
+                                   class="btn btn-primary btn-sm w-100 mb-2">
+                                    <i class="bi bi-eye me-1"></i>
+                                    <span th:text="#{propriedades.ver.detalhes}">Ver Detalhes</span>
+                                </a>
+                                <div class="btn-group w-100">
+                                    <a th:href="@{/admin/propriedades/{id}/editar(id=${propriedade.idPropriedade})}"
+                                       class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a th:href="@{/admin/relatorio-ia(propriedadeId=${propriedade.idPropriedade})}"
+                                       class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-robot"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State Grid -->
+                    <div th:if="${#lists.isEmpty(propriedades)}" class="empty-state-grid">
+                        <i class="bi bi-inbox empty-state-icon"></i>
+                        <h5 class="empty-state-title" th:text="#{propriedades.nenhuma.encontrada}">Nenhuma propriedade encontrada</h5>
+                        <p class="empty-state-text" th:text="#{propriedades.empty.description}">Limpar filtros ou adicionar nova propriedade</p>
+                        <div class="empty-state-actions">
+                            <a th:href="@{/admin/propriedades/novo}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                <span th:text="#{propriedades.nova}">Nova Propriedade</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Footer -->
+    <div class="quick-actions-footer" th:if="${!#lists.isEmpty(propriedades)}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="actions-card">
+                    <h6 class="actions-title" th:text="#{acoes.rapidas}">Ações Rápidas</h6>
+                    <div class="actions-buttons">
+                        <a th:href="@{/admin/propriedades/nivel/1}" class="action-link-btn success">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Excelente</span>
+                        </a>
+                        <a th:href="@{/admin/propriedades/nivel/5}" class="action-link-btn danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span>Crítico</span>
+                        </a>
+                        <a th:href="@{/admin/propriedades/nivel/3}" class="action-link-btn warning">
+                            <i class="bi bi-graph-up"></i>
+                            <span>MODERADO</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="summary-card">
+                    <h6 class="summary-title" th:text="#{resumo.busca}">Resumo da Busca</h6>
+                    <div class="summary-metrics">
+                        <div class="summary-item">
+                            <h5 class="summary-value text-primary" th:text="${propriedades.size()}">8</h5>
+                            <small class="summary-label" th:text="#{stats.total}">Total</small>
+                        </div>
+                        <div class="summary-item">
+                            <h5 class="summary-value text-success" th:text="${totalSensores ?: '-'}">24</h5>
+                            <small class="summary-label" th:text="#{stats.sensores}">Sensores</small>
+                        </div>
+                        <div class="summary-item">
+                            <h5 class="summary-value text-info" th:text="${areaTotal ?: '-'}">250.5</h5>
+                            <small class="summary-label" th:text="#{stats.hectares}">Hectares</small>
+                        </div>
+                        <div class="summary-item">
+                            <h5 class="summary-value text-warning" th:text="${capacidadeMedia ?: '-'}">65%</h5>
+                            <small class="summary-label" th:text="#{stats.media}">Média</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="page-scripts">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // View Toggle Functionality
+        const viewGrid = document.getElementById('viewGrid');
+        const viewList = document.getElementById('viewList');
+        const listView = document.getElementById('listView');
+        const gridView = document.getElementById('gridView');
+
+        // Toggle between views
+        viewGrid.addEventListener('change', function() {
+            if (this.checked) {
+                listView.classList.add('d-none');
+                gridView.classList.remove('d-none');
+                localStorage.setItem('waterwisePropriedadesView', 'grid');
+            }
+        });
+
+        viewList.addEventListener('change', function() {
+            if (this.checked) {
+                gridView.classList.add('d-none');
+                listView.classList.remove('d-none');
+                localStorage.setItem('waterwisePropriedadesView', 'list');
+            }
+        });
+
+        // Load saved view preference
+        const savedView = localStorage.getItem('waterwisePropriedadesView');
+        if (savedView === 'grid') {
+            viewGrid.checked = true;
+            viewGrid.dispatchEvent(new Event('change'));
+        }
+
+        // Animações de entrada
+        const animateElements = () => {
+            // Animate stats cards
+            const statCards = document.querySelectorAll('.animate-stats .stat-card');
+            statCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.6s ease-out';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+
+            // Animate table rows
+            const tableRows = document.querySelectorAll('.table-row-modern');
+            tableRows.forEach((row, index) => {
+                setTimeout(() => {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-10px)';
+                    row.style.transition = 'all 0.4s ease-out';
+                    
+                    setTimeout(() => {
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateX(0)';
+                    }, 50);
+                }, index * 50);
+            });
+
+            // Animate property cards
+            const propertyCards = document.querySelectorAll('.property-card');
+            propertyCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease-out';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        };
+
+        // Initialize animations
+        setTimeout(animateElements, 100);
+
+        // Capacity bar animations
+        const capacityBars = document.querySelectorAll('.capacity-fill');
+        capacityBars.forEach(bar => {
+            const capacity = bar.dataset.capacity;
+            if (capacity) {
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.transition = 'width 1s ease-out';
+                    bar.style.width = capacity + '%';
+                }, 500);
+            }
+        });
+
+        // Interactive effects
+        const propertyCards = document.querySelectorAll('.property-card');
+        propertyCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+                this.style.boxShadow = 'var(--shadow-lg)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'var(--shadow-md)';
+            });
+        });
+
+        // Action buttons hover effects
+        const actionButtons = document.querySelectorAll('.action-btn');
+        actionButtons.forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Search input enhancements
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('focus', function() {
+                this.parentElement.style.borderColor = 'var(--waterwise-primary)';
+                this.parentElement.style.boxShadow = '0 0 0 3px rgba(0, 255, 204, 0.3)';
+            });
+            
+            searchInput.addEventListener('blur', function() {
+                this.parentElement.style.borderColor = 'var(--waterwise-border)';
+                this.parentElement.style.boxShadow = 'none';
+            });
+        }
+
+        // Stats counter animation
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach(valueElement => {
+            const finalValue = parseInt(valueElement.textContent) || 0;
+            if (finalValue > 0) {
+                let currentValue = 0;
+                const increment = Math.ceil(finalValue / 30);
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= finalValue) {
+                        currentValue = finalValue;
+                        clearInterval(timer);
+                    }
+                    valueElement.textContent = currentValue;
+                }, 50);
+            }
+        });
+
+        console.log('✅ Propriedades Lista: Sistema inicializado');
+    });
+</script>
+</th:block>
+
+</html>

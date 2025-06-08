@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title th:text="'Sensor #' + ${sensor.idSensor} + ' - WaterWise'"></title>
+</head>
+
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col">
+            
+            <div class="breadcrumb-container">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb-modern">
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/admin/dashboard}">
+                                <i class="bi bi-speedometer2"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/admin/sensores}">
+                                <i class="bi bi-cpu"></i>
+                                <span>Sensores IoT</span>
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" th:text="'Sensor #' + ${sensor.idSensor}">Sensor #001</li>
+
+                    </ol>
+                </nav>
+            </div>
+
+            
+            <h1 class="h2 text-primary mb-1">
+                <i class="bi bi-cpu me-2"></i>
+                <span th:text="'Sensor #' + ${sensor.idSensor}">Sensor #001</span>
+                <span class="badge bg-success ms-2">Ativo</span>
+            </h1>
+            <p class="text-muted mb-0" th:text="${(sensor.tipoSensor?.nomeTipo ?: 'Tipo não informado') + ' - ' + (sensor.modeloDispositivo ?: 'Modelo não informado')}">
+                UMIDADE_SOLO - WaterWise-UM-2024-A1
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informações do Sensor -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header  border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle text-primary me-2"></i>
+                        Informações do Sensor
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Tipo de Sensor</label>
+                            <p class="fw-bold mb-0" th:text="${sensor.tipoSensor?.nomeTipo ?: 'Não informado'}">UMIDADE_SOLO</p>
+                            <small class="text-muted" th:text="${sensor.tipoSensor?.descricao ?: ''}">Sensor de umidade do solo</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Modelo</label>
+                            <p class="fw-bold mb-0" th:text="${sensor.modeloDispositivo ?: 'Não informado'}">WaterWise-UM-2024-A1</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Data de Instalação</label>
+                            <p class="fw-bold mb-0" th:text="${sensor.dataInstalacao != null ? #temporals.format(sensor.dataInstalacao, 'dd/MM/yyyy HH:mm') : 'Não informado'}">01/01/2025 10:30</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Unidade de Medida</label>
+                            <p class="fw-bold mb-0" th:text="${sensor.tipoSensor?.unidadeMedida ?: 'N/A'}">%</p>
+                        </div>
+                    </div>
+
+                    <!-- Propriedade Vinculada -->
+                    <hr>
+                    <h6 class="text-primary mb-3">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        Propriedade Vinculada
+                    </h6>
+                    <div th:if="${sensor.propriedade != null}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1" th:text="${sensor.propriedade.nomePropriedade}">Fazenda Verde Águas</h6>
+                                <p class="text-muted small mb-0" th:text="${sensor.propriedade.produtor?.nomeCompleto ?: 'Proprietário não informado'}">José Silva Santos</p>
+                            </div>
+                            <a th:href="@{/admin/propriedades/{id}(id=${sensor.propriedade.idPropriedade})}"
+                               class="btn btn-outline-primary btn-sm">
+                                Ver Propriedade
+                            </a>
+                        </div>
+                    </div>
+                    <div th:unless="${sensor.propriedade != null}" class="text-muted">
+                        <p class="mb-0">Nenhuma propriedade vinculada</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status e Monitoramento -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header  border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-activity text-success me-2"></i>
+                        Status e Monitoramento
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Status Operacional -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="bi bi-check-circle text-success display-6"></i>
+                                <h6 class="mt-2 mb-0">Operacional</h6>
+                                <small class="text-muted">Funcionando normalmente</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="bi bi-battery-full text-success display-6"></i>
+                                <h6 class="mt-2 mb-0">100%</h6>
+                                <small class="text-muted">Nível da bateria</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Última Leitura -->
+                    <div th:if="${ultimaLeitura != null}">
+                        <h6 class="text-primary mb-3">Última Leitura</h6>
+                        <div class="row g-2">
+                            <div class="col-md-4" th:if="${ultimaLeitura.umidadeSolo != null}">
+                                <div class="text-center p-2 border rounded">
+                                    <i class="bi bi-droplet text-info"></i>
+                                    <strong th:text="${ultimaLeitura.umidadeSolo} + '%'">65.5%</strong>
+                                    <br><small class="text-muted">Umidade</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4" th:if="${ultimaLeitura.temperaturaAr != null}">
+                                <div class="text-center p-2 border rounded">
+                                    <i class="bi bi-thermometer text-warning"></i>
+                                    <strong th:text="${ultimaLeitura.temperaturaAr} + '°C'">23.1°C</strong>
+                                    <br><small class="text-muted">Temperatura</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4" th:if="${ultimaLeitura.precipitacaoMm != null}">
+                                <div class="text-center p-2 border rounded">
+                                    <i class="bi bi-cloud-rain text-primary"></i>
+                                    <strong th:text="${ultimaLeitura.precipitacaoMm} + 'mm'">2.1mm</strong>
+                                    <br><small class="text-muted">Chuva</small>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0">
+                            <i class="bi bi-clock me-1"></i>
+                            <span th:text="'Leitura em ' + ${#temporals.format(ultimaLeitura.timestampLeitura, 'dd/MM/yyyy HH:mm')}">
+                                Leitura em 01/01/2025 14:30
+                            </span>
+                        </p>
+                    </div>
+                    <div th:unless="${ultimaLeitura != null}" class="text-center text-muted py-3">
+                        <i class="bi bi-exclamation-circle mb-2"></i>
+                        <p class="mb-0">Nenhuma leitura disponível</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Histórico de Leituras -->
+    <div class="card border-0 shadow-sm" th:if="${leiturasRecentes != null and !#lists.isEmpty(leiturasRecentes)}">
+        <div class="card-header  border-0">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-graph-up text-info me-2"></i>
+                Histórico de Leituras (Últimos 7 dias)
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th class="text-center">Umidade (%)</th>
+                        <th class="text-center">Temperatura (°C)</th>
+                        <th class="text-center">Chuva (mm)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="leitura : ${leiturasRecentes}">
+                        <td th:text="${#temporals.format(leitura.timestampLeitura, 'dd/MM HH:mm')}">01/01 14:30</td>
+                        <td class="text-center">
+                            <span th:if="${leitura.umidadeSolo != null}"
+                                  th:text="${leitura.umidadeSolo}">65.5</span>
+                            <span th:unless="${leitura.umidadeSolo != null}" class="text-muted">-</span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${leitura.temperaturaAr != null}"
+                                  th:text="${leitura.temperaturaAr}">23.1</span>
+                            <span th:unless="${leitura.temperaturaAr != null}" class="text-muted">-</span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${leitura.precipitacaoMm != null}"
+                                  th:text="${leitura.precipitacaoMm}">2.1</span>
+                            <span th:unless="${leitura.precipitacaoMm != null}" class="text-muted">-</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Se não há histórico -->
+    <div class="card border-0 shadow-sm" th:if="${leiturasRecentes == null or #lists.isEmpty(leiturasRecentes)}">
+        <div class="card-body text-center text-muted py-5">
+            <i class="bi bi-graph-up display-1 d-block mb-3 opacity-25"></i>
+            <h5 class="text-muted">Nenhum histórico de leituras disponível</h5>
+            <p class="mb-0">As leituras aparecerão aqui assim que o sensor começar a coletar dados</p>
+        </div>
+    </div>
+</div>
+
+</html>

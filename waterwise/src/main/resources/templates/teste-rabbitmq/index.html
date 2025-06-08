@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste RabbitMQ - WaterWise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .test-card { transition: all 0.3s ease; }
+        .test-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .status-online { color: #198754; }
+        .status-offline { color: #dc3545; }
+        .log-console {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .btn-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/admin/dashboard}">
+            <i class="bi bi-droplet-fill me-2"></i>WaterWise Admin
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/admin/dashboard}">
+                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+            </a>
+            <a class="nav-link" th:href="@{/admin/notificacoes}">
+                <i class="bi bi-bell me-1"></i>Notificações
+            </a>
+            <a class="nav-link active" href="#">
+                <i class="bi bi-gear me-1"></i>Teste RabbitMQ
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 text-primary">
+                <i class="bi bi-gear-fill me-2"></i>Centro de Testes RabbitMQ
+            </h1>
+            <p class="text-muted">Teste e monitore o sistema de mensageria em tempo real</p>
+        </div>
+        <div class="col-auto">
+            <span class="badge fs-6" th:classappend="${rabbitmqDisponivel ? 'bg-success' : 'bg-danger'}">
+                <span th:text="${status}">🟢 Ativo</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Status do Sistema -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-hdd-network display-6"></i>
+                    <h6 class="mt-2">RabbitMQ Server</h6>
+                    <span id="statusServer" class="badge bg-light text-dark">Verificando...</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-list-task display-6"></i>
+                    <h6 class="mt-2">Filas Ativas</h6>
+                    <span class="badge bg-light text-dark">2 filas</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle display-6"></i>
+                    <h6 class="mt-2">Listeners</h6>
+                    <span class="badge bg-light text-dark">Ativos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testes Básicos -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm test-card">
+                <div class="card-header ">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-play-circle text-primary me-2"></i>Testes Básicos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button onclick="executarTeste('basico')" class="btn btn-primary">
+                            <i class="bi bi-gear me-1"></i>Teste Básico de Conexão
+                        </button>
+                        <button onclick="executarTeste('alerta-critico')" class="btn btn-danger">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Alerta Crítico
+                        </button>
+                        <button onclick="verificarStatus()" class="btn btn-outline-info">
+                            <i class="bi bi-info-circle me-1"></i>Verificar Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm test-card">
+                <div class="card-header ">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cloud-drizzle text-warning me-2"></i>Cenários Climáticos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button onclick="executarTeste('chuva-intensa')" class="btn btn-warning">
+                            <i class="bi bi-cloud-rain me-1"></i>🌧️ Chuva Intensa
+                        </button>
+                        <button onclick="executarTeste('seca')" class="btn btn-danger">
+                            <i class="bi bi-brightness-high me-1"></i>🌵 Seca Prolongada
+                        </button>
+                        <button onclick="executarTeste('simulacao-completa')" class="btn btn-success btn-pulse">
+                            <i class="bi bi-play-fill me-1"></i>🎭 Simulação Completa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Console de Logs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header  d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-terminal text-success me-2"></i>Console de Logs
+                    </h5>
+                    <div>
+                        <span id="autoScroll" class="badge bg-primary me-2">Auto-scroll ON</span>
+                        <button onclick="limparLogs()" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-trash me-1"></i>Limpar
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <pre id="logConsole" class="log-console p-3 mb-0">🚀 WaterWise RabbitMQ Test Console v1.0
+═══════════════════════════════════════════════
+Sistema iniciado. Aguardando comandos...
+
+💡 Dicas:
+• Use os botões acima para executar testes
+• Verifique as notificações em tempo real
+• Monitore os logs do sistema aqui
+
+Pronto para testar! 🎯
+</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let autoScroll = true;
+
+    // 🚀 EXECUTAR TESTES
+    function executarTeste(tipo) {
+        adicionarLog(`⚡ Executando teste: ${tipo}...`);
+
+        fetch(`/admin/teste-rabbitmq/teste-${tipo}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    adicionarLog(`✅ ${data.mensagem}`);
+                    if (data.alertasGerados) {
+                        adicionarLog(`📊 Alertas gerados: ${data.alertasGerados}`);
+                    }
+                    if (data.sensoresSimulados) {
+                        adicionarLog(`🔧 Sensores simulados: ${data.sensoresSimulados}`);
+                    }
+                } else {
+                    adicionarLog(`❌ ${data.mensagem}`);
+                }
+            })
+            .catch(error => {
+                adicionarLog(`💥 Erro de rede: ${error.message}`);
+            });
+    }
+
+    // 📊 VERIFICAR STATUS
+    function verificarStatus() {
+        adicionarLog('🔍 Verificando status do sistema...');
+
+        fetch('/admin/teste-rabbitmq/status')
+            .then(response => response.json())
+            .then(data => {
+                adicionarLog(`📡 Status: ${data.status}`);
+                adicionarLog(`🔧 RabbitMQ: ${data.rabbitmqHabilitado ? 'Habilitado' : 'Desabilitado'}`);
+                adicionarLog(`⚡ Serviço: ${data.servicoDisponivel ? 'Disponível' : 'Indisponível'}`);
+
+                if (data.filas) {
+                    adicionarLog(`📋 Filas ativas: ${data.filas.join(', ')}`);
+                }
+
+                // Atualizar badge do status
+                const statusElement = document.getElementById('statusServer');
+                if (data.servicoDisponivel) {
+                    statusElement.textContent = 'Online';
+                    statusElement.className = 'badge bg-success';
+                } else {
+                    statusElement.textContent = 'Offline';
+                    statusElement.className = 'badge bg-danger';
+                }
+            })
+            .catch(error => {
+                adicionarLog(`❌ Erro ao verificar status: ${error.message}`);
+            });
+    }
+
+    // 📝 ADICIONAR LOG
+    function adicionarLog(mensagem) {
+        const console = document.getElementById('logConsole');
+        const timestamp = new Date().toLocaleTimeString();
+        console.textContent += `\n[${timestamp}] ${mensagem}`;
+
+        if (autoScroll) {
+            console.scrollTop = console.scrollHeight;
+        }
+    }
+
+    // 🧹 LIMPAR LOGS
+    function limparLogs() {
+        document.getElementById('logConsole').textContent = `🚀 WaterWise RabbitMQ Test Console v1.0
+═══════════════════════════════════════════════
+Console limpo em ${new Date().toLocaleTimeString()}
+
+Pronto para novos testes! 🎯
+`;
+    }
+
+    // 🔄 AUTO-SCROLL TOGGLE
+    document.getElementById('autoScroll').addEventListener('click', function() {
+        autoScroll = !autoScroll;
+        this.textContent = autoScroll ? 'Auto-scroll ON' : 'Auto-scroll OFF';
+        this.className = autoScroll ? 'badge bg-primary me-2' : 'badge bg-secondary me-2';
+    });
+
+    // 🌟 INICIALIZAÇÃO
+    document.addEventListener('DOMContentLoaded', function() {
+        adicionarLog('🎯 Sistema de testes inicializado!');
+        adicionarLog('💡 Dica: Verifique a página de Notificações para ver os resultados');
+
+        // Verificar status automaticamente
+        setTimeout(verificarStatus, 1000);
+
+        // Lembrete sobre notificações
+        setTimeout(() => {
+            adicionarLog('🔔 Lembrete: Acesse /admin/notificacoes para ver as notificações geradas');
+        }, 3000);
+    });
+
+    // 🎨 EFEITOS VISUAIS
+    document.querySelectorAll('.test-card').forEach(card => {
+        card.addEventListener('click', function() {
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+</script>
+
+</body>
+</html>

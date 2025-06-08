@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Notificações - WaterWise</title>
+    <link th:href="@{/css/templates-css/notificacoes-lista.css}" rel="stylesheet" layout:fragment="page-css">
+</head>
+
+<!-- Main Content -->
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header animate-fade-in-up">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-bell page-title-icon"></i>
+                    Central de Notificações
+                </h1>
+                <p class="page-description">
+                    Acompanhe alertas e eventos do sistema em tempo real
+                    <span id="integrationStatus" class="integration-status loading ms-2">
+                        <i class="bi bi-circle-fill"></i> Verificando integração .NET...
+                    </span>
+                </p>
+            </div>
+            
+            <!-- Ações Rápidas -->
+            <div class="quick-actions-card">
+                <div class="quick-actions-buttons">
+                    <button onclick="atualizarNotificacoes()" class="quick-action-btn">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Atualizar
+                    </button>
+                    <button onclick="limparTodas()" class="quick-action-btn btn-outline">
+                        <i class="bi bi-trash"></i>
+                        Limpar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="stats-grid animate-stats">
+        <div class="stat-card stat-primary">
+            <i class="bi bi-bell stat-icon"></i>
+            <div class="stat-value" id="totalNotificacoes" th:text="${total ?: 0}">0</div>
+            <div class="stat-label">Total</div>
+        </div>
+        
+        <div class="stat-card stat-warning">
+            <i class="bi bi-exclamation-triangle stat-icon"></i>
+            <div class="stat-value" id="totalNovas">0</div>
+            <div class="stat-label">Não Lidas</div>
+        </div>
+        
+        <div class="stat-card stat-success">
+            <i class="bi bi-cpu stat-icon"></i>
+            <div class="stat-value" id="totalSensores">0</div>
+            <div class="stat-label">Sensores .NET</div>
+        </div>
+        
+        <div class="stat-card stat-info" id="integracaoCard">
+            <i class="bi bi-link-45deg stat-icon"></i>
+            <div class="stat-value" id="integracaoStatus">?</div>
+            <div class="stat-label">Integração .NET</div>
+        </div>
+    </div>
+
+    <!-- Lista de Notificações -->
+    <div class="main-section animate-table">
+        <div class="section-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="section-title">
+                    <i class="bi bi-list-ul section-icon"></i>
+                    Lista de Notificações
+                </h5>
+                <div class="notification-controls">
+                    <button onclick="testarIntegracao()" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-flask me-1"></i>
+                        Teste Integração
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="section-body p-0">
+            <div id="listaNotificacoes" class="notifications-container">
+                <!-- Será preenchido via JavaScript -->
+                <div class="notification-loading">
+                    <div class="loading-skeleton"></div>
+                    <div class="loading-skeleton"></div>
+                    <div class="loading-skeleton"></div>
+                    <p class="text-center text-muted mt-3">Carregando notificações...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testes e Debug -->
+    <div class="debug-section">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title">
+                            <i class="bi bi-gear text-info me-2"></i>
+                            Testes Rápidos
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button onclick="criarTeste()" class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                Criar Teste Local
+                            </button>
+                            <button onclick="testarEndpoint()" class="btn btn-outline-info btn-sm">
+                                <i class="bi bi-bug me-1"></i>
+                                Debug Endpoint
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title">
+                            <i class="bi bi-activity text-success me-2"></i>
+                            Status do Sistema
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="status-grid">
+                            <div class="status-item">
+                                <div class="status-value">API</div>
+                                <div class="status-indicator online">
+                                    <span class="status-dot"></span>
+                                    Online
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-value">RabbitMQ</div>
+                                <div id="rabbitmqStatus" class="status-indicator offline">
+                                    <span class="status-dot"></span>
+                                    Offline
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<th:block layout:fragment="page-scripts">
+<script>
+    // 🔄 ATUALIZAR NOTIFICAÇÕES
+    function atualizarNotificacoes() {
+        console.log('🔄 Atualizando notificações...');
+        
+        // Mostrar loading
+        document.getElementById('listaNotificacoes').innerHTML = `
+            <div class="notification-loading">
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <p class="text-center text-muted mt-3">Atualizando notificações...</p>
+            </div>
+        `;
+
+        fetch('/admin/notificacoes/api/lista')
+            .then(response => {
+                console.log('📡 Resposta recebida:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('📊 Dados recebidos:', data);
+                renderizarNotificacoes(data.notificacoes);
+                atualizarEstatisticas(data);
+                console.log(`✅ ${data.total} notificações carregadas`);
+                
+                // Feedback visual
+                showToast(`${data.total} notificações atualizadas`, 'success');
+            })
+            .catch(error => {
+                console.error('❌ Erro ao carregar notificações:', error);
+                document.getElementById('listaNotificacoes').innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-exclamation-triangle empty-state-icon text-danger"></i>
+                    <h5 class="empty-state-title">Erro ao carregar notificações</h5>
+                    <p class="empty-state-text">${error.message}</p>
+                    <div class="empty-state-actions">
+                        <button onclick="atualizarNotificacoes()" class="btn btn-primary">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Tentar novamente
+                        </button>
+                    </div>
+                </div>
+            `;
+                
+                showToast('Erro ao atualizar notificações', 'error');
+            });
+    }
+
+    // 🔗 VERIFICAR STATUS DA INTEGRAÇÃO .NET
+    function verificarStatusIntegracao() {
+        fetch('/admin/integracao/status')
+            .then(response => response.json())
+            .then(data => {
+                const statusElement = document.getElementById('integracaoStatus');
+                const cardElement = document.getElementById('integracaoCard');
+                const headerStatus = document.getElementById('integrationStatus');
+                const rabbitmqStatus = document.getElementById('rabbitmqStatus');
+                
+                if (data.rabbitmqConectado) {
+                    statusElement.textContent = '✅';
+                    cardElement.className = 'stat-card stat-success';
+                    headerStatus.innerHTML = '<i class="bi bi-circle-fill"></i> Integração .NET ativa';
+                    headerStatus.className = 'integration-status online ms-2';
+                    rabbitmqStatus.className = 'status-indicator online';
+                    rabbitmqStatus.innerHTML = '<span class="status-dot"></span>Online';
+                } else {
+                    statusElement.textContent = '❌';
+                    cardElement.className = 'stat-card stat-danger';
+                    headerStatus.innerHTML = '<i class="bi bi-circle-fill"></i> Integração .NET offline';
+                    headerStatus.className = 'integration-status offline ms-2';
+                    rabbitmqStatus.className = 'status-indicator offline';
+                    rabbitmqStatus.innerHTML = '<span class="status-dot"></span>Offline';
+                }
+                
+                console.log('🔗 Status integração:', data.mensagem);
+            })
+            .catch(error => {
+                console.warn('⚠️ Integração .NET não configurada:', error);
+                document.getElementById('integracaoStatus').textContent = '⚠️';
+                document.getElementById('integracaoCard').className = 'stat-card stat-warning';
+                document.getElementById('integrationStatus').innerHTML = '<i class="bi bi-circle-fill"></i> Integração .NET não configurada';
+                document.getElementById('integrationStatus').className = 'integration-status offline ms-2';
+            });
+    }
+
+    // 🧪 TESTAR INTEGRAÇÃO .NET
+    function testarIntegracao() {
+        fetch('/admin/integracao/teste', { method: 'POST' })
+            .then(response => response.text())
+            .then(message => {
+                showToast('Teste de integração executado!', 'success');
+                setTimeout(atualizarNotificacoes, 500);
+            })
+            .catch(error => {
+                console.error('❌ Erro no teste:', error);
+                showToast('Erro no teste de integração', 'error');
+            });
+    }
+
+    // 🎨 RENDERIZAR LISTA
+    function renderizarNotificacoes(notificacoes) {
+        const lista = document.getElementById('listaNotificacoes');
+
+        if (notificacoes.length === 0) {
+            lista.innerHTML = `
+            <div class="empty-state">
+                <i class="bi bi-bell-slash empty-state-icon"></i>
+                <h5 class="empty-state-title">Nenhuma notificação</h5>
+                <p class="empty-state-text">As notificações aparecerão aqui quando eventos ocorrerem</p>
+                <div class="empty-state-actions">
+                    <button onclick="criarTeste()" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-1"></i>Criar Teste
+                    </button>
+                </div>
+            </div>
+        `;
+            return;
+        }
+
+        lista.innerHTML = notificacoes.map(n => `
+        <div class="notification-item notification-${n.tipo.toLowerCase()} ${!n.lida ? 'unread' : ''}"
+             onclick="marcarComoLida('${n.id}')">
+            <div class="notification-content">
+                <div class="notification-icon">
+                    ${getIconeNotificacao(n.tipo, n.origem)}
+                </div>
+                <div class="notification-body">
+                    <div class="notification-header">
+                        <h6 class="notification-title">${n.titulo}</h6>
+                        <small class="notification-time">${n.timeFormatted}</small>
+                    </div>
+                    <p class="notification-message">${n.mensagem}</p>
+                    <div class="notification-footer">
+                        <span class="notification-badge bg-${getTipoClass(n.tipo)}">${getOrigemLabel(n.origem)}</span>
+                        ${!n.lida ? '<span class="notification-new">NOVA</span>' : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    // 🎯 ÍCONES POR TIPO E ORIGEM
+    function getIconeNotificacao(tipo, origem) {
+        const origemIcons = {
+            'DOTNET_SENSOR': 'bi-cpu-fill text-primary',
+            'DOTNET_API': 'bi-cloud-arrow-down-fill text-info',
+            'SENSOR': 'bi-broadcast text-success',
+            'ALERTA': 'bi-bell-fill text-warning',
+            'SISTEMA': 'bi-gear-fill text-secondary',
+            'TESTE': 'bi-flask text-muted'
+        };
+
+        const tipoColors = {
+            'DANGER': 'text-danger',
+            'WARNING': 'text-warning',
+            'SUCCESS': 'text-success',
+            'INFO': 'text-info'
+        };
+
+        const baseIcon = origemIcons[origem] || 'bi-bell text-primary';
+        const colorClass = tipoColors[tipo.toUpperCase()] || 'text-primary';
+        
+        return `<i class="bi ${baseIcon.split(' ')[0]} ${colorClass}"></i>`;
+    }
+
+    // 🏷️ LABELS DAS ORIGENS
+    function getOrigemLabel(origem) {
+        const labels = {
+            'DOTNET_SENSOR': '.NET Sensor',
+            'DOTNET_API': '.NET API',
+            'SENSOR': 'Sensor IoT',
+            'ALERTA': 'Alerta',
+            'SISTEMA': 'Sistema',
+            'TESTE': 'Teste'
+        };
+        return labels[origem] || origem;
+    }
+
+    // 🎨 CLASSES CSS
+    function getTipoClass(tipo) {
+        const classes = {
+            'DANGER': 'danger',
+            'WARNING': 'warning',
+            'SUCCESS': 'success',
+            'INFO': 'info'
+        };
+        return classes[tipo.toUpperCase()] || 'secondary';
+    }
+
+    // 📊 ATUALIZAR ESTATÍSTICAS
+    function atualizarEstatisticas(data) {
+        document.getElementById('totalNotificacoes').textContent = data.total;
+        document.getElementById('totalNovas').textContent = data.novas;
+        document.getElementById('totalSensores').textContent = data.totalSensores || 0;
+
+        // Badge no navbar
+        const badge = document.getElementById('badgeNovas');
+        if (badge) {
+            if (data.novas > 0) {
+                badge.textContent = data.novas;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+
+    // ✅ MARCAR COMO LIDA
+    function marcarComoLida(id) {
+        fetch(`/admin/notificacoes/marcar-lida/${id}`, { method: 'POST' })
+            .then(() => atualizarNotificacoes())
+            .catch(error => console.error('Erro ao marcar como lida:', error));
+    }
+
+    // 🧪 CRIAR TESTE LOCAL
+    function criarTeste() {
+        fetch('/admin/notificacoes/teste', { method: 'POST' })
+            .then(() => {
+                setTimeout(atualizarNotificacoes, 500);
+                showToast('Notificação de teste criada!', 'success');
+            })
+            .catch(error => console.error('Erro ao criar teste:', error));
+    }
+
+    // 🧹 LIMPAR TODAS
+    function limparTodas() {
+        if (confirm('Tem certeza que deseja limpar todas as notificações?')) {
+            fetch('/admin/notificacoes/limpar', { method: 'POST' })
+                .then(() => {
+                    atualizarNotificacoes();
+                    showToast('Notificações limpas!', 'info');
+                })
+                .catch(error => console.error('Erro ao limpar:', error));
+        }
+    }
+
+    // 🍞 TOAST DE FEEDBACK
+    function showToast(message, type = 'info') {
+        const typeMap = {
+            'success': 'success',
+            'error': 'danger',
+            'warning': 'warning',
+            'info': 'info'
+        };
+        
+        const bootstrapType = typeMap[type] || 'info';
+        
+        const toastId = 'toast-' + Date.now();
+        const toastHtml = `
+            <div id="${toastId}" class="toast show position-fixed top-0 end-0 m-3" style="z-index: 9999;">
+                <div class="toast-header">
+                    <i class="bi bi-bell text-${bootstrapType} me-2"></i>
+                    <strong class="me-auto">WaterWise</strong>
+                    <small class="text-muted">agora</small>
+                    <button type="button" class="btn-close" onclick="document.getElementById('${toastId}').remove()"></button>
+                </div>
+                <div class="toast-body bg-${bootstrapType} text-white">
+                    ${message}
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', toastHtml);
+        
+        setTimeout(() => {
+            const toastElement = document.getElementById(toastId);
+            if (toastElement) {
+                toastElement.remove();
+            }
+        }, 3000);
+        
+        console.log(`🍞 Toast: ${message}`);
+    }
+
+    // 🐛 TESTE DE DEBUG
+    function testarEndpoint() {
+        console.log('🐛 Testando endpoint de notificações...');
+        
+        fetch('/admin/notificacoes/api/lista', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            console.log('📡 Status da resposta:', response.status);
+            console.log('📡 Headers:', [...response.headers.entries()]);
+            console.log('📡 URL:', response.url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            return response.text();
+        })
+        .then(text => {
+            console.log('📄 Resposta em texto:', text);
+            
+            try {
+                const data = JSON.parse(text);
+                console.log('✅ JSON parseado:', data);
+                showToast(`Endpoint funcionando! ${data.total || 0} notificações`, 'success');
+            } catch (e) {
+                console.error('❌ Erro ao parsear JSON:', e);
+                showToast('Resposta não é JSON válido', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Erro na requisição:', error);
+            showToast(`Erro: ${error.message}`, 'error');
+        });
+    }
+
+    // 🚀 INICIALIZAÇÃO
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Iniciando sistema de notificações...');
+        
+        // Primeira carga
+        atualizarNotificacoes();
+        verificarStatusIntegracao();
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(atualizarNotificacoes, 30000);
+        
+        // Verificar status da integração a cada 60 segundos
+        setInterval(verificarStatusIntegracao, 60000);
+
+        console.log('🔔 Sistema de notificações iniciado!');
+        console.log('🔗 Monitoramento de integração .NET ativo');
+    });
+</script>
+</th:block>
+
+</html>

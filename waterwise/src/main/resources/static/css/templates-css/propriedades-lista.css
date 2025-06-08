@@ -1,0 +1,325 @@
+@import url(../main.css);
+
+/* ========== PROPRIEDADES LISTA - CSS ESPECÍFICO ========== */
+
+/* View Toggle específico */
+.view-toggle-group {
+    display: flex;
+    gap: 2px;
+}
+
+.view-toggle-btn {
+    border-radius: var(--border-radius-sm) !important;
+    padding: var(--spacing-sm);
+    transition: var(--transition-fast);
+}
+
+.view-toggle-btn:hover {
+    background: rgba(0, 255, 204, 0.1);
+    border-color: var(--waterwise-primary);
+}
+
+/* Lista (Tabela) */
+.list-view {
+    /* Container para a visualização em lista */
+}
+
+/* Grid View */
+.grid-view {
+    padding: var(--spacing-lg);
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+/* Cards de propriedade específicos */
+.property-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: var(--transition-normal);
+    height: fit-content;
+}
+
+.property-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+}
+
+.property-card-header {
+    background: rgba(0, 0, 0, 0.1);
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--waterwise-border);
+}
+
+.property-card-title {
+    color: var(--waterwise-text);
+    font-weight: 600;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.property-card-owner {
+    color: var(--waterwise-text-secondary);
+    font-size: 0.875rem;
+}
+
+.property-card-body {
+    padding: var(--spacing-lg);
+}
+
+.property-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.metric-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+}
+
+.metric-item i {
+    font-size: 1.25rem;
+}
+
+.metric-item strong {
+    color: var(--waterwise-text);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.metric-item small {
+    color: var(--waterwise-text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.capacity-progress {
+    margin-top: var(--spacing-md);
+}
+
+.property-card-footer {
+    background: rgba(0, 0, 0, 0.1);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--waterwise-border);
+}
+
+.card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+/* Quick Actions Footer específico */
+.quick-actions-footer {
+    margin-top: var(--spacing-xl);
+}
+
+.actions-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+}
+
+.actions-title {
+    color: var(--waterwise-text);
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+}
+
+.actions-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    justify-content: center;
+}
+
+.action-link-btn {
+    background: rgba(0, 255, 204, 0.1);
+    color: var(--waterwise-primary);
+    border: 1px solid rgba(0, 255, 204, 0.2);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    transition: var(--transition-fast);
+}
+
+.action-link-btn:hover {
+    background: rgba(0, 255, 204, 0.2);
+    transform: translateY(-1px);
+    color: var(--waterwise-primary);
+}
+
+.action-link-btn.success {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--waterwise-success);
+    border-color: rgba(76, 175, 80, 0.2);
+}
+
+.action-link-btn.success:hover {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--waterwise-success);
+}
+
+.action-link-btn.danger {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--waterwise-danger);
+    border-color: rgba(244, 67, 54, 0.2);
+}
+
+.action-link-btn.danger:hover {
+    background: rgba(244, 67, 54, 0.2);
+    color: var(--waterwise-danger);
+}
+
+.action-link-btn.warning {
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--waterwise-warning);
+    border-color: rgba(255, 152, 0, 0.2);
+}
+
+.action-link-btn.warning:hover {
+    background: rgba(255, 152, 0, 0.2);
+    color: var(--waterwise-warning);
+}
+
+/* Summary card específico */
+.summary-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+}
+
+.summary-title {
+    color: var(--waterwise-text);
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+}
+
+.summary-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.summary-label {
+    color: var(--waterwise-text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+/* Responsividade específica */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .property-metrics {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-sm);
+    }
+    
+    .summary-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .actions-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .property-metrics {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-metrics {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Hover Effects específicos para desktop */
+@media (hover: hover) {
+    .search-input-group:hover .search-input {
+        border-color: var(--waterwise-primary);
+    }
+    
+    .search-input-group:hover .search-icon {
+        color: var(--waterwise-primary);
+    }
+}
+
+/* Estados específicos */
+.capacity-fill[data-capacity] {
+    position: relative;
+}
+
+.capacity-fill[data-capacity]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+/* Melhorias para toque em dispositivos móveis */
+@media (hover: none) {
+    .action-btn:active {
+        transform: scale(0.95);
+        background: var(--waterwise-primary);
+        color: var(--waterwise-background);
+    }
+    
+    .property-card:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Otimizações para dispositivos de alta densidade */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .capacity-bar,
+    .status-dot,
+    .action-btn {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}

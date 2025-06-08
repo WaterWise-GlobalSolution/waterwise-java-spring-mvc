@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+
+<head>
+    <title th:text="#{nav.dashboard}">Dashboard</title>
+    <link th:href="@{/css/templates-css/dashboard-index.css}" rel="stylesheet" layout:fragment="page-css">
+</head>
+
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-speedometer2 page-title-icon"></i>
+                    <span th:text="#{dashboard.titulo}">Dashboard de Monitoramento WaterWise</span>
+                </h1>
+                <p class="page-description" th:text="#{dashboard.descricao}">
+                    Visão geral do sistema de prevenção a enchentes em Mairiporã-SP
+                </p>
+            </div>
+            
+            <!-- Ações Rápidas -->
+            <div class="quick-actions-card">
+                <h5 class="quick-actions-title">
+                    <i class="bi bi-lightning quick-actions-icon"></i>
+                    <span th:text="#{dashboard.acoes.rapidas}">Ações Rápidas</span>
+                </h5>
+                <div class="quick-actions-buttons">
+                    <a th:href="@{/admin/propriedades/novo}" class="quick-action-btn">
+                        <i class="bi bi-plus-circle"></i>
+                        <span th:text="#{propriedades.nova}">Nova Propriedade</span>
+                    </a>
+                    <a th:href="@{/admin/propriedades}" class="quick-action-btn btn-outline">
+                        <i class="bi bi-list"></i>
+                        <span th:text="#{propriedades.listar}">Listar Propriedades</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards de Estatísticas Principais -->
+    <div class="stats-grid">
+        <div class="stat-card stat-primary animate-stats">
+            <i class="bi bi-geo-alt stat-icon"></i>
+            <div class="stat-value" th:text="${estatisticas.totalPropriedades ?: 0}">0</div>
+            <div class="stat-label" th:text="#{dashboard.total.propriedades}">Total de Propriedades</div>
+        </div>
+
+        <div class="stat-card stat-success animate-stats">
+            <i class="bi bi-check-circle stat-icon"></i>
+            <div class="stat-value" th:text="${estatisticas.propriedadesAtivas ?: 0}">0</div>
+            <div class="stat-label" th:text="#{dashboard.propriedades.ativas}">Propriedades Ativas</div>
+        </div>
+
+        <div class="stat-card stat-info animate-stats">
+            <i class="bi bi-cpu stat-icon"></i>
+            <div class="stat-value" th:text="${estatisticas.sensoresAtivos ?: 0}">0</div>
+            <div class="stat-label" th:text="#{dashboard.sensores.ativos}">Sensores Ativos</div>
+        </div>
+
+        <div class="stat-card stat-warning animate-stats">
+            <i class="bi bi-droplet-half stat-icon"></i>
+            <div class="stat-value"
+                th:text="|${#numbers.formatDecimal(estatisticas.capacidadeAbsorcaoMedia ?: 0, 1, 1)}%|">0.0%</div>
+            <div class="stat-label" th:text="#{dashboard.capacidade.media}">Capacidade Média</div>
+        </div>
+    </div>
+
+    <!-- Top 5 Propriedades -->
+    <div class="main-section animate-table">
+        <div class="section-header">
+            <h5 class="section-title">
+                <i class="bi bi-trophy section-icon"></i>
+                <span th:text="#{dashboard.top5.propriedades}">Top 5 Propriedades - Melhor Capacidade de Absorção Hídrica</span>
+            </h5>
+        </div>
+        <div class="section-body">
+            <div class="table-responsive">
+                <table class="table table-modern">
+                    <thead>
+                    <tr>
+                        <th class="text-center">Pos.</th>
+                        <th th:text="#{propriedades.nome}">Nome da Propriedade</th>
+                        <th class="text-center" th:text="#{propriedades.area.ha}">Área (ha)</th>
+                        <th class="text-center" th:text="#{propriedades.sensores}">Sensores</th>
+                        <th class="text-center" th:text="#{capacidade}">Capacidade</th>
+                        <th class="text-center" th:text="#{propriedades.acoes}">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="prop, iter : ${propriedades}">
+                        <td class="text-center">
+                            <span class="badge-position" th:text="${iter.index + 1}">1</span>
+                        </td>
+                        <td>
+                            <div class="property-info">
+                                <div class="property-name" th:text="${prop.nomePropriedade}">Fazenda Exemplo</div>
+                                <div class="property-details" th:text="${prop.produtor?.nomeCompleto ?: 'Proprietário não informado'}">João Silva</div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="fw-bold" th:text="${#numbers.formatDecimal(prop.areaHectares ?: 0, 1, 1)}">50.0</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-sensors" th:text="${prop.totalSensores ?: 0}">3</span>
+                            <span class="badge badge-sensors active" th:text="${prop.sensoresAtivos ?: 0}">2</span>
+                        </td>
+                        <td class="text-center">
+                            <div th:if="${prop.nivelDegradacao?.capacidadeAbsorcaoPercentual != null}" class="capacity-indicator">
+                                <span class="capacity-value"
+                                      th:text="|${#numbers.formatDecimal(prop.nivelDegradacao.capacidadeAbsorcaoPercentual, 1, 1)}%|">45.2%</span>
+                                <small class="capacity-level" th:text="#{__${#strings.toLowerCase('nivel.' + (prop.nivelDegradacao.codigoDegradacao ?: 'moderado'))}__}">MODERADO</small>
+                            </div>
+                            <span th:unless="${prop.nivelDegradacao?.capacidadeAbsorcaoPercentual != null}" class="text-muted">N/A</span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/admin/propriedades/{id}(id=${prop.idPropriedade})}"
+                               class="action-btn" title="Ver detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(propriedades)}">
+                        <td colspan="6" class="empty-state">
+                            <i class="bi bi-inbox empty-state-icon"></i>
+                            <h5 class="empty-state-title">Nenhuma propriedade encontrada</h5>
+                            <p class="empty-state-text">Cadastre propriedades para visualizar dados aqui</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="page-scripts">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animação dos cards de estatísticas
+        const statCards = document.querySelectorAll('.animate-stats');
+        statCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.6s ease-out';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100);
+            }, index * 100);
+        });
+        
+        // Animação da tabela
+        const table = document.querySelector('.animate-table');
+        if (table) {
+            setTimeout(() => {
+                table.style.opacity = '0';
+                table.style.transform = 'translateX(-20px)';
+                table.style.transition = 'all 0.6s ease-out';
+                
+                setTimeout(() => {
+                    table.style.opacity = '1';
+                    table.style.transform = 'translateX(0)';
+                }, 50);
+            }, 500);
+        }
+        
+        // Animação de contagem nos valores
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach(valueElement => {
+            const finalValue = parseInt(valueElement.textContent) || 0;
+            if (finalValue > 0) {
+                let currentValue = 0;
+                const increment = Math.ceil(finalValue / 30);
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= finalValue) {
+                        currentValue = finalValue;
+                        clearInterval(timer);
+                    }
+                    
+                    if (valueElement.textContent.includes('%')) {
+                        valueElement.textContent = currentValue + '%';
+                    } else {
+                        valueElement.textContent = currentValue;
+                    }
+                }, 50);
+            }
+        });
+        
+        // Hover effect nos cards
+        const cards = document.querySelectorAll('.stat-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px) scale(1.02)';
+                this.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.3)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = '';
+            });
+        });
+        
+        // Tooltip para badges de sensores
+        const sensorBadges = document.querySelectorAll('.badge-sensors');
+        sensorBadges.forEach(badge => {
+            if (badge.classList.contains('active')) {
+                badge.title = 'Sensores Ativos';
+            } else {
+                badge.title = 'Total de Sensores';
+            }
+        });
+        
+        // Adicionar indicadores de tendência (simulado)
+        const capacityValues = document.querySelectorAll('.capacity-value');
+        capacityValues.forEach(value => {
+            const percentage = parseFloat(value.textContent);
+            if (percentage >= 70) {
+                value.classList.add('success-indicator');
+            } else if (percentage >= 40) {
+                value.classList.add('warning-indicator');
+            } else {
+                value.classList.add('danger-indicator');
+            }
+        });
+        
+        // Auto-refresh de dados a cada 5 minutos (simulado)
+        setInterval(() => {
+            console.log('🔄 Auto-refresh de dados do dashboard');
+            // Aqui você adicionaria a lógica real de refresh
+        }, 300000); // 5 minutos
+        
+        // Indicar carregamento dos cards
+        statCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const originalContent = this.innerHTML;
+                this.innerHTML = '<div class="loading-skeleton"></div>';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalContent;
+                }, 1000);
+            });
+        });
+    });
+    
+    // Função para atualizar dados em tempo real (exemplo)
+    function updateDashboardData() {
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach(value => {
+            // Simular pequenas variações nos dados
+            const currentValue = parseInt(value.textContent) || 0;
+            const variation = Math.floor(Math.random() * 3) - 1; // -1, 0, ou 1
+            const newValue = Math.max(0, currentValue + variation);
+            
+            if (value.textContent.includes('%')) {
+                value.textContent = Math.min(100, newValue) + '%';
+            } else {
+                value.textContent = newValue;
+            }
+        });
+    }
+    
+    // Simular atualizações ocasionais
+    setInterval(updateDashboardData, 30000); // A cada 30 segundos
+</script>
+</th:block>
+
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Detalhes da Propriedade</title>
+</head>
+
+
+<!-- Main Content -->
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col">
+            
+            <div class="breadcrumb-container">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb-modern">
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/admin/dashboard}">
+                                <i class="bi bi-speedometer2"></i>
+                                <span th:text="#{nav.dashboard}">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a th:href="@{/admin/propriedades}">
+                                <i class="bi bi-geo-alt"></i>
+                                <span th:text="#{nav.propriedades}">Propriedades Rurais</span>
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            <span th:text="${propriedade.nomePropriedade}">Fazenda Tal</span>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+            
+            <h1 class="h2 text-primary mb-1">
+                <i class="bi bi-geo-alt me-2"></i>
+                <span th:text="${propriedade.nomePropriedade}">Fazenda Verde Águas</span>
+            </h1>
+            <p class="text-muted mb-0" th:text="${propriedade.produtor?.nomeCompleto ?: 'Não informado'}">
+                José Silva Santos
+            </p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group" role="group">
+                <a th:href="@{/admin/propriedades/{id}/editar(id=${propriedade.idPropriedade})}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil me-1"></i>
+                    <span>Editar</span>
+                </a>
+                <a th:href="@{/admin/relatorio-ia(propriedadeId=${propriedade.idPropriedade})}" class="btn btn-info">
+                    <i class="bi bi-robot me-1"></i>
+                    <span>Relatório de IA</span>
+                </a>
+                <!-- <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluirPropriedade">
+                    <i class="bi bi-trash me-1"></i>
+                    <span>Excluir</span>
+                </button> -->
+
+                <form th:action="@{/admin/propriedades/{id}/excluir(id=${propriedade.idPropriedade})}"
+                      method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger" style="border-radius: 0 0.8rem 0.8rem 0">
+                        <i class="bi bi-trash me-1"></i>
+                        Excluir Propriedade
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informações Principais -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header  border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle text-primary me-2"></i>
+                        <span>Informações Básicas</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Nome da Propriedade</label>
+                            <p class="fw-bold mb-0" th:text="${propriedade.nomePropriedade}">Fazenda Verde Águas</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Área (hectares)</label>
+                            <p class="fw-bold mb-0" th:text="${propriedade.areaHectares ?: 0} + ' hectares'">50.75 hectares</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Latitude (GPS)</label>
+                            <p class="fw-bold mb-0" th:text="${propriedade.latitude ?: 0} + '°'">-23.123456°</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Longitude (GPS)</label>
+                            <p class="fw-bold mb-0" th:text="${propriedade.longitude ?: 0} + '°'">-46.654321°</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Tipo de Solo</label>
+                            <p class="fw-bold mb-0" th:text="${propriedade.tipoSolo ?: 'Não informado'}">Latossolo Vermelho</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted">Data de Cadastro</label>
+                            <p class="fw-bold mb-0" th:text="${propriedade.dataCadastro != null ? #temporals.format(propriedade.dataCadastro, 'dd/MM/yyyy HH:mm') : 'Não informado'}">01/01/2025 10:30</p>
+                        </div>
+                    </div>
+
+                    <!-- Nível de Degradação -->
+                    <hr>
+                    <div th:if="${propriedade.nivelDegradacao != null}">
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-speedometer2 me-2"></i>
+                            <span>Nível de Degradação do Solo</span>
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6 class="mb-1" th:text="${propriedade.nivelDegradacao.descricaoDegradacao ?: 'N/A'}">Solo com degradação moderada</h6>
+                                <p class="text-muted small mb-2" th:text="${propriedade.nivelDegradacao.acoesCorretivas ?: 'Nenhuma ação especificada'}">
+                                    Recomenda-se práticas de conservação e recuperação do solo
+                                </p>
+                                <div class="progress mb-2" style="height: 25px;" th:if="${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual != null}">
+                                    <div class="progress-bar bg-success"
+                                         th:style="'width: ' + ${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual} + '%'"
+                                         th:text="${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual ?: 0} + '% capacidade'">
+                                        50.0% capacidade
+                                    </div>
+                                </div>
+                                <small class="text-muted">Capacidade de Absorção Hídrica</small>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="bg-light p-3 rounded">
+                                    <h2 class="text-success mb-1" th:text="${propriedade.nivelDegradacao.nivelNumerico ?: 0} + '/5'">3/5</h2>
+                                    <small class="text-muted">Nível Degradação</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sensores da Propriedade -->
+            <div class="card border-0 shadow-sm" th:if="${!#lists.isEmpty(propriedade.sensores)}">
+                <div class="card-header  border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cpu text-info me-2"></i>
+                        <span>Sensores IoT</span>
+                        <span class="badge bg-info ms-2" th:text="${propriedade.totalSensores ?: 0}">3</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo</th>
+                                <th>Modelo</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="sensor : ${propriedade.sensores}">
+                                <td>
+                                    <span class="fw-bold text-primary" th:text="'#' + ${sensor.idSensor}">001</span>
+                                </td>
+                                <td>
+                                    <span th:text="${sensor.tipoSensor?.nomeTipo ?: 'Não informado'}">UMIDADE_SOLO</span>
+                                    <br>
+                                    <small class="text-muted" th:text="${sensor.tipoSensor?.unidadeMedida ?: ''}">%</small>
+                                </td>
+                                <td th:text="${sensor.modeloDispositivo ?: 'Não informado'}">WaterWise-UM-2024-A1</td>
+                                <td class="text-center">
+                                    <span class="badge bg-success">Ativo</span>
+                                </td>
+                                <td class="text-center">
+                                    <a th:href="@{/admin/sensores/{id}(id=${sensor.idSensor})}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar - Métricas e Ações -->
+        <div class="col-lg-4">
+            <!-- Métricas de Impacto -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header  border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-droplet text-primary me-2"></i>
+                        <span>Impacto Hídrico</span>
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <h2 class="text-primary mb-1" th:text="${(impactoRetencao ?: 0)/1000} + 'K'">25K</h2>
+                        <p class="text-muted small mb-0">Retenção de Água no Solo</p>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="bg-light p-3 rounded">
+                                <i class="bi bi-people text-info display-6"></i>
+                                <h4 class="mt-2 mb-0" th:text="${familiasProtegidas}">25</h4>
+                                <small class="text-muted">Famílias Protegidas</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light p-3 rounded">
+                                <i class="bi bi-shield-check text-success display-6"></i>
+                                <h4 class="mt-2 mb-0" th:text="${statusCapacidade ?: 'Bom'}">Bom</h4>
+                                <small class="text-muted">Operacional</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar bg-success"
+                             th:style="'width: ' + ${capacidadeAbsorcao ?: 50} + '%'"
+                             th:text="${capacidadeAbsorcao ?: 50} + '%'">50%</div>
+                    </div>
+                    <small class="text-muted">Classificação de Eficiência</small>
+                </div>
+            </div>
+
+            <!-- Status dos Sensores -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header  border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-activity text-success me-2"></i>
+                        <span>Status e Monitoramento</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="bg-light p-3 rounded">
+                                <i class="bi bi-cpu text-primary display-6"></i>
+                                <h4 class="mt-2 mb-0" th:text="${propriedade.totalSensores ?: 0}">3</h4>
+                                <small class="text-muted">Total de Sensores</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light p-3 rounded">
+                                <i class="bi bi-check-circle text-success display-6"></i>
+                                <h4 class="mt-2 mb-0" th:text="${propriedade.sensoresAtivos ?: 0}">2</h4>
+                                <small class="text-muted">Sensores Ativos</small>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="d-grid">
+                        <a th:href="@{/admin/sensores/propriedade/{id}(id=${propriedade.idPropriedade})}"
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-list me-1"></i>
+                            <span>Gerenciar Sensores</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header  border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightning text-warning me-2"></i>
+                        <span>Ações Rápidas</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/admin/propriedades/{id}/editar(id=${propriedade.idPropriedade})}"
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil me-1"></i>
+                            <span>Editar</span>
+                        </a>
+                        <a th:href="@{/admin/sensores/novo(propriedadeId=${propriedade.idPropriedade})}"
+                           class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            <span>Adicionar Sensor IoT</span>
+                        </a>
+                        <a th:href="@{/admin/relatorio-ia(propriedadeId=${propriedade.idPropriedade})}"
+                           class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-robot me-1"></i>
+                            <span>Gerar Relatório</span>
+                        </a>
+                        <button onclick="showMap()" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-map me-1"></i>
+                            <span>Localização</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Localização -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header  border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-pin-map text-danger me-2"></i>
+                        <span>Localização</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="bg-light p-3 rounded text-center">
+                        <i class="bi bi-geo-alt text-danger display-6"></i>
+                        <div class="mt-2">
+                            <strong class="d-block">Região de Mairiporã</strong>
+                            <small class="text-muted">Coordenadas GPS:</small>
+                            <br>
+                            <code class="small">
+                                <span id="dado-propriedade-latitude" th:text="${propriedade.latitude ?: 0}"/>,
+                                <span id="dado-propriedade-longitude" th:text="${propriedade.longitude ?: 0}"/>
+                            </code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalExcluirPropriedade" aria-labelledby="modalExcluirPropriedadeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-danger" id="modalExcluirPropriedadeLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Confirmar Exclusão
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <h6 class="text-center mb-3">Tem certeza que deseja excluir a propriedade?</h6>
+                <div class="alert alert-warning border-0 bg-light">
+                    <h6 class="mb-2">
+                        <i class="bi bi-info-circle text-warning me-2"></i>
+                        Propriedade: <strong th:text="${propriedade.nomePropriedade}">Fazenda Verde</strong>
+                    </h6>
+                    <p class="mb-2 small text-muted">
+                        <strong>Produtor:</strong> <span th:text="${propriedade.produtor?.nomeCompleto ?: 'Não informado'}">José Silva</span>
+                    </p>
+                    <p class="mb-0 small text-muted">
+                        <strong>Área:</strong> <span th:text="${propriedade.areaHectares ?: 0} + ' hectares'">50.75 hectares</span>
+                    </p>
+                </div>
+
+                <!-- Aviso sobre sensores -->
+                <div class="alert alert-danger border-0" th:if="${propriedade.totalSensores > 0}">
+                    <h6 class="mb-2">
+                        <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                        Atenção: Sensores IoT Vinculados
+                    </h6>
+                    <p class="mb-0 small">
+                        Esta propriedade possui <strong th:text="${propriedade.totalSensores}">3</strong> sensor(es) IoT registrado(s).
+                        Todos os sensores também serão <strong>excluídos permanentemente</strong>.
+                    </p>
+                </div>
+
+                <div class="alert alert-info border-0" th:if="${propriedade.totalSensores == 0}">
+                    <p class="mb-0 small">
+                        <i class="bi bi-info-circle text-info me-2"></i>
+                        Esta propriedade não possui sensores IoT vinculados.
+                    </p>
+                </div>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted small mb-0">
+                        <strong>Esta ação não pode ser desfeita!</strong>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Cancelar
+                </button>
+                <form th:action="@{/admin/propriedades/{id}/excluir(id=${propriedade.idPropriedade})}"
+                      method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>
+                        Sim, Excluir Propriedade
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<th:block layout:fragment="page-scripts">
+
+<script th:inline="javascript">
+    function showMap() {
+        const latitude = document.getElementById('dado-propriedade-latitude').textContent;
+        const longitude = document.getElementById('dado-propriedade-longitude').textContent;
+        const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        window.open(url, '_blank');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM carregado, verificando modal...');
+        const deleteButton = document.querySelector('[data-bs-target="#modalExcluirPropriedade"]');
+        if (deleteButton) {
+            console.log('Botão de exclusão encontrado!');
+            deleteButton.addEventListener('click', function () {
+                console.log('Botão de exclusão clicado!');
+            });
+        } else {
+            console.log('Botão de exclusão não encontrado!');
+        }
+    });
+</script>
+</th:block>
+
+</html>

@@ -1,0 +1,81 @@
+<div class="container mt-4">
+  <h2>🐰 Teste RabbitMQ - WaterWise</h2>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">Testes Básicos</div>
+        <div class="card-body">
+          <button onclick="testMessage()" class="btn btn-primary mb-2">
+            Teste Simples
+          </button>
+          <button onclick="testCriticalAlert()" class="btn btn-danger mb-2">
+            Alerta Crítico
+          </button>
+          <button onclick="testRegionalAnalysis()" class="btn btn-info">
+            Análise Regional
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">Cenários</div>
+        <div class="card-body">
+          <button onclick="testScenario('chuva-intensa')" class="btn btn-warning mb-2">
+            🌧️ Chuva Intensa
+          </button>
+          <button onclick="testScenario('seca-prolongada')" class="btn btn-danger mb-2">
+            🌵 Seca Prolongada
+          </button>
+          <button onclick="testScenario('temperatura-extrema')" class="btn btn-orange">
+            🔥 Temperatura Extrema
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="card">
+      <div class="card-header">Logs em Tempo Real</div>
+      <div class="card-body">
+        <pre id="logs" style="height: 300px; overflow-y: auto; background: #1e1e1e; color: #00ff00; padding: 10px;"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function testMessage() {
+    fetch('/admin/rabbitmq/test/message', {method: 'POST'})
+            .then(r => r.json())
+            .then(data => {
+              addLog('✅ ' + data.message);
+            });
+  }
+
+  function testCriticalAlert() {
+    fetch('/admin/rabbitmq/test/alerta-critico', {method: 'POST'})
+            .then(r => r.json())
+            .then(data => {
+              addLog('🚨 ' + data.message);
+            });
+  }
+
+  function testScenario(scenario) {
+    fetch(`/admin/rabbitmq/test/cenario/${scenario}`, {method: 'POST'})
+            .then(r => r.json())
+            .then(data => {
+              addLog('🎭 Cenário ' + scenario + ': ' + data.message);
+            });
+  }
+
+  function addLog(message) {
+    const logs = document.getElementById('logs');
+    const time = new Date().toLocaleTimeString();
+    logs.textContent += `[${time}] ${message}\n`;
+    logs.scrollTop = logs.scrollHeight;
+  }
+</script>

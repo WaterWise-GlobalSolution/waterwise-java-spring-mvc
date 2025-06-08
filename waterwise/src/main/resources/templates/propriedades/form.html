@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title th:if="${propriedade.idPropriedade != null}" th:text="#{propriedades.form.editar.titulo} + ' - WaterWise'">Editar Propriedade - WaterWise</title>
+    <title th:unless="${propriedade.idPropriedade != null}" th:text="#{propriedades.form.nova.titulo} + ' - WaterWise'">Nova Propriedade - WaterWise</title>
+    <link th:href="@{/css/templates-css/propriedades-form.css}" rel="stylesheet" layout:fragment="page-css">
+</head>
+
+<!-- Main Content -->
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header animate-fade-in-up">
+        <div class="breadcrumb-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb-modern">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/admin/dashboard}">
+                            <i class="bi bi-speedometer2"></i>
+                            <span th:text="#{nav.dashboard}">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/admin/propriedades}">
+                            <i class="bi bi-geo-alt"></i>
+                            <span th:text="#{nav.propriedades}">Propriedades Rurais</span>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <span th:if="${propriedade.idPropriedade != null}" th:text="#{propriedades.form.editar}">Editar</span>
+                        <span th:unless="${propriedade.idPropriedade != null}" th:text="#{propriedades.form.nova}">Nova Propriedade</span>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+        
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="bi bi-geo-alt page-title-icon"></i>
+                <span th:if="${propriedade.idPropriedade != null}" th:text="#{propriedades.form.editar.titulo}">Editar Propriedade Rural</span>
+                <span th:unless="${propriedade.idPropriedade != null}" th:text="#{propriedades.form.nova.titulo}">Nova Propriedade Rural</span>
+            </h1>
+            <p class="page-description" th:text="#{propriedades.form.descricao}">
+                Gerenciamento de propriedades rurais monitoradas
+            </p>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <!-- Formulário Principal -->
+        <div class="form-main animate-slide-in">
+            <form th:action="@{/admin/propriedades}" th:object="${propriedade}" method="post" class="property-form">
+                <input type="hidden" th:field="*{idPropriedade}" />
+
+                <!-- Informações Básicas -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-info-circle section-icon"></i>
+                            <span th:text="#{propriedades.form.informacoes.basicas}">Informações Básicas</span>
+                        </h5>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-grid">
+                            <div class="form-group form-group-large">
+                                <label for="nomePropriedade" class="form-label" th:text="#{propriedades.form.nome} + ' *'">Nome da Propriedade *</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-building input-icon"></i>
+                                    <input type="text" class="form-input" id="nomePropriedade"
+                                           th:field="*{nomePropriedade}"
+                                           th:placeholder="#{propriedades.form.nome.placeholder}"
+                                           th:classappend="${#fields.hasErrors('nomePropriedade')} ? 'is-invalid' : ''"
+                                           required>
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('nomePropriedade')}"
+                                     th:errors="*{nomePropriedade}">
+                                    Nome é obrigatório
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="areaHectares" class="form-label" th:text="#{propriedades.form.area} + ' *'">Área (hectares) *</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-map input-icon"></i>
+                                    <input type="number" class="form-input" id="areaHectares"
+                                           th:field="*{areaHectares}"
+                                           step="0.01" min="0.01"
+                                           th:placeholder="#{propriedades.form.area.placeholder}"
+                                           th:classappend="${#fields.hasErrors('areaHectares')} ? 'is-invalid' : ''"
+                                           required>
+                                    <span class="input-suffix">ha</span>
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('areaHectares')}"
+                                     th:errors="*{areaHectares}">
+                                    Área é obrigatória
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="idProdutor" class="form-label" th:text="#{propriedades.form.produtor} + ' *'">Produtor Rural *</label>
+                                <div class="select-wrapper">
+                                    <i class="bi bi-person select-icon"></i>
+                                    <select class="form-select" id="idProdutor" 
+                                            th:field="*{idProdutor}"
+                                            th:classappend="${#fields.hasErrors('idProdutor')} ? 'is-invalid' : ''"
+                                            required>
+                                        <option value="" th:text="#{form.selecione.opcao}">Selecione uma opção</option>
+                                        <option th:each="produtor : ${produtores}"
+                                                th:value="${produtor.idProdutor}"
+                                                th:text="${produtor.nomeCompleto + ' - ' + produtor.cpfCnpj}">
+                                            João Silva - 123.456.789-00
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('idProdutor')}"
+                                     th:errors="*{idProdutor}">
+                                    Selecione um produtor
+                                </div>
+                                <small class="form-help" th:text="#{propriedades.form.produtor.help}">
+                                    Proprietário responsável pela propriedade
+                                </small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="idNivelDegradacao" class="form-label" th:text="#{propriedades.form.nivel.degradacao} + ' *'">Nível de Degradação do Solo *</label>
+                                <div class="select-wrapper">
+                                    <i class="bi bi-speedometer2 select-icon"></i>
+                                    <select class="form-select" id="idNivelDegradacao"
+                                            th:field="*{idNivelDegradacao}"
+                                            th:classappend="${#fields.hasErrors('idNivelDegradacao')} ? 'is-invalid' : ''"
+                                            required>
+                                        <option value="" th:text="#{form.selecione.opcao}">Selecione uma opção</option>
+                                        <option th:each="nivel : ${nivelDegradacao}"
+                                                th:value="${nivel.idNivelDegradacao}"
+                                                th:text="${nivel.nivelNumerico + ' - ' + nivel.descricaoDegradacao}"
+                                                th:data-capacidade="${nivel.capacidadeAbsorcaoPercentual}">
+                                            3 - Solo com degradação moderada
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('idNivelDegradacao')}"
+                                     th:errors="*{idNivelDegradacao}">
+                                    Selecione um nível de degradação
+                                </div>
+                                <small class="form-help" th:text="#{propriedades.form.nivel.degradacao.help}">
+                                    Determina a capacidade de absorção hídrica
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Localização -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-pin-map section-icon"></i>
+                            <span th:text="#{propriedades.form.localizacao}">Localização</span>
+                        </h5>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="latitude" class="form-label" th:text="#{propriedades.form.latitude} + ' *'">Latitude (GPS) *</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-geo-alt input-icon"></i>
+                                    <input type="number" class="form-input" id="latitude"
+                                           th:field="*{latitude}"
+                                           step="0.000001" min="-90" max="90"
+                                           th:placeholder="#{propriedades.form.latitude.placeholder}"
+                                           th:classappend="${#fields.hasErrors('latitude')} ? 'is-invalid' : ''"
+                                           required>
+                                    <span class="input-suffix">°</span>
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('latitude')}"
+                                     th:errors="*{latitude}">
+                                    Latitude é obrigatória
+                                </div>
+                                <small class="form-help" th:text="#{propriedades.form.latitude.help}">
+                                    Ex: -23.123456 (Região de Mairiporã)
+                                </small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="longitude" class="form-label" th:text="#{propriedades.form.longitude} + ' *'">Longitude (GPS) *</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-geo-alt input-icon"></i>
+                                    <input type="number" class="form-input" id="longitude"
+                                           th:field="*{longitude}"
+                                           step="0.000001" min="-180" max="180"
+                                           th:placeholder="#{propriedades.form.longitude.placeholder}"
+                                           th:classappend="${#fields.hasErrors('longitude')} ? 'is-invalid' : ''"
+                                           required>
+                                    <span class="input-suffix">°</span>
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('longitude')}"
+                                     th:errors="*{longitude}">
+                                    Longitude é obrigatória
+                                </div>
+                                <small class="form-help" th:text="#{propriedades.form.longitude.help}">
+                                    Ex: -46.654321 (Região de Mairiporã)
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="location-actions">
+                            <button type="button" class="location-btn" onclick="getCurrentLocation()">
+                                <i class="bi bi-geo-alt"></i>
+                                <span th:text="#{propriedades.form.usar.localizacao}">Usar Minha Localização</span>
+                            </button>
+                            <button type="button" class="location-btn btn-outline" onclick="openMap()">
+                                <i class="bi bi-map"></i>
+                                <span th:text="#{propriedades.form.abrir.mapa}">Abrir Google Maps</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="form-actions">
+                    <div class="actions-left">
+                        <a th:href="@{/admin/propriedades}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i>
+                            <span th:text="#{btn.voltar}">Voltar</span>
+                        </a>
+                    </div>
+                    <div class="actions-right">
+                        <button type="button" class="btn btn-outline-warning" onclick="resetForm()">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            <span th:text="#{btn.limpar}">Limpar</span>
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="bi bi-check-circle"></i>
+                            <span th:if="${propriedade.idPropriedade != null}" th:text="#{btn.atualizar} + ' ' + #{propriedades.propriedade}">Atualizar Propriedade</span>
+                            <span th:unless="${propriedade.idPropriedade != null}" th:text="#{btn.salvar} + ' ' + #{propriedades.propriedade}">Salvar Propriedade</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar - Informações de Ajuda -->
+        <div class="form-sidebar animate-fade-in-up">
+            <!-- Preview da Capacidade -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="bi bi-droplet card-icon"></i>
+                        <span th:text="#{propriedades.form.capacidade.preview}">Capacidade de Absorção Hídrica</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="capacidadePreview" class="capacity-preview">
+                        <div class="capacity-display">
+                            <h2 class="capacity-value">--</h2>
+                            <p class="capacity-label" th:text="#{propriedades.form.capacidade.absorcao}">Capacidade de absorção</p>
+                        </div>
+                        <div class="capacity-bar-container">
+                            <div class="capacity-bar">
+                                <div id="capacidadeBar" class="capacity-fill" style="width: 0%">0%</div>
+                            </div>
+                        </div>
+                        <small class="capacity-description" th:text="#{propriedades.form.nivel.degradacao.solo}">
+                            Nível de Degradação do Solo
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dicas de Preenchimento -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="bi bi-lightbulb card-icon"></i>
+                        <span th:text="#{propriedades.form.dicas.titulo}">Dicas de Preenchimento</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="tip-item">
+                        <h6 class="tip-title" th:text="#{propriedades.form.dica.nome}">Nome da Propriedade</h6>
+                        <p class="tip-description" th:text="#{propriedades.form.dica.nome.desc}">
+                            Use um nome descritivo que identifique facilmente a propriedade
+                        </p>
+                    </div>
+                    <div class="tip-item">
+                        <h6 class="tip-title" th:text="#{propriedades.form.dica.coordenadas}">Coordenadas GPS</h6>
+                        <p class="tip-description" th:text="#{propriedades.form.dica.coordenadas.desc}">
+                            Para propriedades em Mairiporã, a latitude está entre -23.4 e -23.2
+                        </p>
+                    </div>
+                    <div class="tip-item">
+                        <h6 class="tip-title" th:text="#{propriedades.form.dica.degradacao}">Nível de Degradação</h6>
+                        <p class="tip-description" th:text="#{propriedades.form.dica.degradacao.desc}">
+                            Determina a capacidade de absorção hídrica do solo
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status do Sistema -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="bi bi-info-circle card-icon"></i>
+                        <span th:text="#{propriedades.form.status.sistema}">Status do Sistema</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="status-metrics">
+                        <div class="metric-item">
+                            <h6 class="metric-label" th:text="#{propriedades.form.total.propriedades}">Total de Propriedades</h6>
+                            <h4 class="metric-value text-primary">8</h4>
+                        </div>
+                        <div class="metric-item">
+                            <h6 class="metric-label" th:text="#{propriedades.form.regiao.mairipora}">Região de Mairiporã</h6>
+                            <h4 class="metric-value text-success">5</h4>
+                        </div>
+                    </div>
+                    <div class="system-description">
+                        <p th:text="#{propriedades.form.sistema.descricao}">
+                            Sistema IoT integrado para monitoramento de propriedades rurais em Mairiporã-SP, focado na prevenção de enchentes urbanas
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="page-scripts">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Atualizar preview da capacidade quando mudar o nível de degradação
+        const nivelSelect = document.getElementById('idNivelDegradacao');
+        const preview = document.getElementById('capacidadePreview');
+        const bar = document.getElementById('capacidadeBar');
+
+        nivelSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const capacidade = selectedOption.getAttribute('data-capacidade');
+
+            if (capacidade) {
+                const capacidadeValue = parseFloat(capacidade);
+                preview.querySelector('.capacity-value').textContent = capacidadeValue.toFixed(1) + '%';
+                preview.querySelector('.capacity-value').className = 'capacity-value text-success';
+                
+                // Animar a barra
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.transition = 'width 1s ease-out';
+                    bar.style.width = capacidade + '%';
+                    bar.textContent = Math.round(capacidadeValue) + '%';
+                }, 100);
+            } else {
+                preview.querySelector('.capacity-value').textContent = '--';
+                preview.querySelector('.capacity-value').className = 'capacity-value';
+                bar.style.width = '0%';
+                bar.textContent = '0%';
+            }
+        });
+
+        // Validação em tempo real para coordenadas de Mairiporã
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+
+        latInput.addEventListener('blur', function() {
+            const lat = parseFloat(this.value);
+            if (lat && (lat < -23.4 || lat > -23.2)) {
+                this.classList.add('is-warning');
+                showTooltip(this, 'Coordenada fora da região de Mairiporã');
+            } else {
+                this.classList.remove('is-warning');
+            }
+        });
+
+        lngInput.addEventListener('blur', function() {
+            const lng = parseFloat(this.value);
+            if (lng && (lng < -46.7 || lng > -46.5)) {
+                this.classList.add('is-warning');
+                showTooltip(this, 'Coordenada fora da região de Mairiporã');
+            } else {
+                this.classList.remove('is-warning');
+            }
+        });
+
+        // Animações de entrada
+        setTimeout(() => {
+            document.querySelectorAll('.form-section').forEach((section, index) => {
+                setTimeout(() => {
+                    section.style.opacity = '0';
+                    section.style.transform = 'translateY(20px)';
+                    section.style.transition = 'all 0.6s ease-out';
+                    
+                    setTimeout(() => {
+                        section.style.opacity = '1';
+                        section.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+        }, 200);
+
+        // Trigger para carregar preview se já tem nível selecionado (edição)
+        if (nivelSelect.value) {
+            nivelSelect.dispatchEvent(new Event('change'));
+        }
+
+        console.log('✅ Propriedades Form: Sistema inicializado');
+    });
+
+    // Obter localização atual
+    function getCurrentLocation() {
+        if (navigator.geolocation) {
+            const btn = event.target.closest('.location-btn');
+            const originalContent = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise spin"></i><span>Obtendo localização...</span>';
+            btn.disabled = true;
+            
+            navigator.geolocation.getCurrentPosition(function(position) {
+                document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
+                document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+                
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                
+                showToast('Localização obtida com sucesso!', 'success');
+            }, function(error) {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                showToast('Erro ao obter localização: ' + error.message, 'error');
+            });
+        } else {
+            showToast('Geolocalização não é suportada por este navegador.', 'warning');
+        }
+    }
+
+    // Abrir mapa
+    function openMap() {
+        const lat = document.getElementById('latitude').value || -23.3;
+        const lng = document.getElementById('longitude').value || -46.6;
+        const url = `https://www.google.com/maps?q=${lat},${lng}`;
+        window.open(url, '_blank');
+    }
+
+    // Resetar formulário
+    function resetForm() {
+        if (confirm('Tem certeza que deseja limpar o formulário?')) {
+            document.querySelector('.property-form').reset();
+            
+            // Reset preview
+            const preview = document.getElementById('capacidadePreview');
+            preview.querySelector('.capacity-value').textContent = '--';
+            preview.querySelector('.capacity-value').className = 'capacity-value';
+            document.getElementById('capacidadeBar').style.width = '0%';
+            document.getElementById('capacidadeBar').textContent = '0%';
+            
+            showToast('Formulário limpo!', 'info');
+        }
+    }
+
+    // Tooltip helper
+    function showTooltip(element, message) {
+        // Implementação simples de tooltip
+        element.title = message;
+    }
+
+    // Toast notification helper
+    function showToast(message, type = 'info') {
+        const toastId = 'toast-' + Date.now();
+        const typeClass = {
+            'success': 'bg-success',
+            'error': 'bg-danger',
+            'warning': 'bg-warning',
+            'info': 'bg-info'
+        };
+        
+        const toast = document.createElement('div');
+        toast.id = toastId;
+        toast.className = `toast show position-fixed top-0 end-0 m-3 ${typeClass[type]} text-white`;
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            <div class="toast-body">
+                ${message}
+                <button type="button" class="btn-close btn-close-white ms-2" onclick="document.getElementById('${toastId}').remove()"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            if (document.getElementById(toastId)) {
+                document.getElementById(toastId).remove();
+            }
+        }, 3000);
+    }
+
+    // CSS para animação de spin
+    const style = document.createElement('style');
+    style.textContent = `
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .is-warning { border-color: #ffc107 !important; }
+    `;
+    document.head.appendChild(style);
+</script>
+</th:block>
+
+</html>

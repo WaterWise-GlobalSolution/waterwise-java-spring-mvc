@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" th:href="@{/assets/brand/waterwise-icone.png}">
+    <title>Login - WaterWise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/templates-css/login.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Header com Logo -->
+            <div class="login-header">
+                <h4 class="waterwise-title">WaterWise</h4>
+                <p class="subtitle">Sistema de Prevenção a Enchentes</p>
+                <small class="case-info">Case Mairiporã - SP</small>
+            </div>
+
+            <!-- Corpo do Login -->
+            <div class="login-body">
+                <!-- Mensagens de Erro -->
+                <div th:if="${param.error}" class="alert alert-danger alert-modern" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span th:switch="${param.error[0]}">
+                        <span th:case="'oauth2-failed'">Erro no login com Google. Tente novamente.</span>
+                        <span th:case="'user-not-found'">Usuário não encontrado no sistema.</span>
+                        <span th:case="'not-authenticated'">Sessão expirou. Faça login novamente.</span>
+                        <span th:case="'session-expired'">Sessão expirou. Faça login novamente.</span>
+                        <span th:case="*">Erro no processo de autenticação!</span>
+                    </span>
+                </div>
+
+                <!-- Mensagem de Sucesso -->
+                <div th:if="${param.logout}" class="alert alert-success alert-modern" role="alert">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Logout realizado com sucesso!
+                </div>
+
+                <!-- Botão Google OAuth2 -->
+                <a href="/oauth2/authorization/google" class="google-button">
+                    <i class="bi bi-google"></i>
+                    <span>Entrar com Google</span>
+                </a>
+                
+                <!-- Badge de Segurança -->
+                <div class="security-badge">
+                    <i class="bi bi-shield-check"></i>
+                    <small>Método seguro e rápido</small>
+                </div>
+
+                <!-- Informação adicional -->
+                <div class="info-section">
+                    <div class="info-text">
+                        <i class="bi bi-info-circle"></i>
+                        <span>Entre com sua conta Google para acessar o sistema</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="login-footer">
+                <i class="bi bi-shield-check text-success"></i>
+                <span>WaterWise © 2025</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Adicionar efeito de carregamento no botão Google
+        document.querySelector('.google-button').addEventListener('click', function() {
+            this.innerHTML = '<div class="spinner-border spinner-border-sm me-2" role="status"></div>Conectando...';
+            this.style.pointerEvents = 'none';
+        });
+        
+        // Animação de entrada dos elementos
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.login-card');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.8s ease-out';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+            
+            // Adicionar efeito de hover suave
+            const googleBtn = document.querySelector('.google-button');
+            googleBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            googleBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

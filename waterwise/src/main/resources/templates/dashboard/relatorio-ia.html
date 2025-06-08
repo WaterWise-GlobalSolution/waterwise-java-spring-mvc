@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Relatórios de IA</title>
+    <style>
+        /* CSS personalizado para relatório IA */
+        .relatorio-ia-content {
+            color: #333;
+            white-space: pre-line;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+        .relatorio-ia-content h1, .relatorio-ia-content h2, .relatorio-ia-content h3 {
+            color: #0d6efd;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .relatorio-ia-content strong {
+            color: #198754;
+            font-weight: 600;
+        }
+        .relatorio-ia-content p {
+            margin-bottom: 1rem;
+        }
+        .loading-pulse {
+            animation: pulse 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes pulse {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+        @media print {
+            .card-footer, .btn, nav, footer { display: none !important; }
+            .card { border: none !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+
+
+<!-- Main Content -->
+<div layout:fragment="content">
+    <!-- Page Header Melhorado -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 text-primary">
+                <i class="bi bi-robot me-2"></i>
+                Relatórios de Inteligência Artificial
+            </h1>
+            <p class="text-muted">
+                Análises automáticas para otimização da retenção hídrica com Ollama Gemma:2b
+            </p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group" role="group">
+                <a th:href="@{/admin/test-ollama}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-wrench me-1"></i>
+                    Testar IA
+                </a>
+                <a th:href="@{/admin/status-ia}" target="_blank" class="btn btn-outline-info btn-sm">
+                    <i class="bi bi-activity me-1"></i>
+                    Status
+                </a>
+                <a th:href="@{/admin/relatorio-regional}" class="btn btn-info">
+                    <i class="bi bi-map me-1"></i>
+                    Análise Regional
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seletor de Propriedade -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header border-0">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-filter text-primary me-2"></i>
+                Selecione uma propriedade para análise
+            </h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/relatorio-ia}" method="get" class="row g-3" id="relatorioForm">
+                <div class="col-md-8">
+                    <label class="form-label">Propriedades Rurais</label>
+                    <select class="form-select" name="propriedadeId" required>
+                        <option value="">Selecione uma opção</option>
+                        <option th:each="prop : ${propriedades}"
+                                th:value="${prop.idPropriedade}"
+                                th:selected="${propriedadeId == prop.idPropriedade}"
+                                th:text="${prop.nomePropriedade + ' - ' + (prop.areaHectares ?: 0) + ' hectares'}">
+                            Fazenda Verde - 50.0 hectares
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+                        <i class="bi bi-robot me-1"></i>
+                        Gerar Análise de IA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="card border-0 shadow-sm mb-4" style="display: none;">
+        <div class="card-body text-center py-4">
+            <div class="spinner-border text-primary loading-pulse" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+            <h5 class="mt-3 mb-1">🤖 Gerando análise com IA Ollama Gemma:2b...</h5>
+            <p class="text-muted mb-0">Isso pode levar alguns segundos</p>
+            <small class="text-muted">O modelo está processando os dados da propriedade</small>
+        </div>
+    </div>
+
+    <!-- Relatório de IA Gerado -->
+    <div th:if="${relatorioIA != null and propriedade != null}" class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white" style="background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-robot me-2"></i>
+                        Relatório de Impacto - Inteligência Artificial
+                        <span th:text="${propriedade.nomePropriedade}">Fazenda Verde</span>
+                    </h5>
+                    <small class="text-white-50">
+                        Gerado em <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}">01/01/2025 14:30</span>
+                        • Modelo: Ollama Gemma:2b
+                    </small>
+                </div>
+                <!-- Relatório de IA Melhorado -->
+                <div class="card-body">
+                    <div th:if="${relatorioIA != null and !#strings.isEmpty(relatorioIA)}"
+                         class="relatorio-ia-content"
+                         th:utext="${#strings.replace(#strings.replace(relatorioIA, '\\n', '<br>'), '**', '<strong>')}"
+                         style="color: #fff; line-height: 1.8; font-size: 1rem;">
+                        <!-- Conteúdo da análise de IA será inserido aqui -->
+                    </div>
+                    <div th:if="${relatorioIA == null or #strings.isEmpty(relatorioIA)}"
+                         class="text-center text-muted py-4">
+                        <i class="bi bi-exclamation-circle display-4 opacity-25"></i>
+                        <p class="mt-3">Nenhum relatório disponível</p>
+                        <small>Selecione uma propriedade e clique em "Gerar Análise de IA"</small>
+                    </div>
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <button onclick="window.print()" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="bi bi-printer me-1"></i>
+                                Imprimir
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button onclick="downloadPDF()" class="btn btn-outline-success btn-sm w-100">
+                                <i class="bi bi-download me-1"></i>
+                                Exportar
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button onclick="copiarTexto()" class="btn btn-outline-info btn-sm w-100">
+                                <i class="bi bi-clipboard me-1"></i>
+                                Copiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar - Dados da Propriedade -->
+        <div class="col-lg-4">
+            <!-- Informações da Propriedade -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-geo-alt text-success me-2"></i>
+                        Informações Básicas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Nome da Propriedade</label>
+                        <p class="fw-bold mb-0" th:text="${propriedade.nomePropriedade}">Fazenda Verde Águas</p>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="text-muted small">Área (hectares)</label>
+                            <p class="fw-bold mb-0" th:text="${propriedade.areaHectares ?: 0} + ' hectares'">50.0 hectares</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small">Sensores</label>
+                            <p class="fw-bold mb-0">
+                                <span class="badge bg-info" th:text="${propriedade.totalSensores ?: 0}">3</span>
+                                <span class="badge bg-success ms-1" th:text="${propriedade.sensoresAtivos ?: 0}">2</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mb-3" th:if="${propriedade.nivelDegradacao != null}">
+                        <label class="text-muted small">Nível de Degradação do Solo</label>
+                        <p class="fw-bold mb-1" th:text="${propriedade.nivelDegradacao.descricaoDegradacao ?: 'N/A'}">Solo com degradação moderada</p>
+                        <div class="progress mb-2" style="height: 20px;" th:if="${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual != null}">
+                            <div class="progress-bar bg-success"
+                                 th:style="'width: ' + ${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual} + '%'"
+                                 th:text="${propriedade.nivelDegradacao.capacidadeAbsorcaoPercentual ?: 0} + '%'">50%</div>
+                        </div>
+                        <small class="text-muted">Capacidade de Absorção Hídrica</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status da IA -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cpu text-info me-2"></i>
+                        Status da IA
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small">Modelo:</span>
+                        <span class="fw-bold">Ollama Gemma:2b</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small">Status:</span>
+                        <span id="ia-status" class="badge bg-secondary">Verificando...</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small">Endpoint:</span>
+                        <code class="small">localhost:11434</code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações Recomendadas -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightbulb text-warning me-2"></i>
+                        Ações Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-tree me-1"></i>
+                            Retenção de Água no Solo
+                        </button>
+                        <button class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-cpu me-1"></i>
+                            Adicionar Sensor IoT
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm">
+                            <i class="bi bi-graph-up me-1"></i>
+                            Monitoramento em tempo real
+                        </button>
+                        <a th:href="@{/admin/propriedades/{id}(id=${propriedade.idPropriedade})}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye me-1"></i>
+                            Ver Detalhes Completos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado Inicial Melhorado -->
+    <div th:unless="${relatorioIA != null and propriedade != null}" class="text-center text-muted py-5">
+        <i class="bi bi-robot display-1 d-block mb-4 opacity-25"></i>
+        <h4 class="text-muted">Selecione uma propriedade para análise</h4>
+        <p class="mb-3">Como funciona a IA do WaterWise</p>
+
+        <!-- Status da IA -->
+        <div class="alert alert-info d-inline-block">
+            <i class="bi bi-info-circle me-1"></i>
+            <strong>Status IA:</strong>
+            <span id="ia-status-home" class="text-success">Verificando...</span>
+            <small class="d-block mt-1">Ollama Gemma:2b</small>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="p-3">
+                    <i class="bi bi-bar-chart text-primary display-4"></i>
+                    <h6 class="mt-2">Análise de dados da propriedade</h6>
+                    <small class="text-muted">Processa informações de área, sensores e degradação do solo</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3">
+                    <i class="bi bi-geo-alt text-success display-4"></i>
+                    <h6 class="mt-2">Contextualização regional</h6>
+                    <small class="text-muted">Considera o contexto específico de Mairiporã-SP</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3">
+                    <i class="bi bi-lightbulb text-warning display-4"></i>
+                    <h6 class="mt-2">Insights técnicos especializados</h6>
+                    <small class="text-muted">Recomendações baseadas em expertise em hidrologia</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="page-scripts">
+<script>
+    // Mostrar loading ao submeter formulário
+    document.getElementById('relatorioForm').addEventListener('submit', function() {
+        document.getElementById('loadingIndicator').style.display = 'block';
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Gerando...';
+
+        // Scroll para o loading
+        document.getElementById('loadingIndicator').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Download PDF melhorado
+    function downloadPDF() {
+        const content = document.querySelector('.relatorio-ia-content');
+        if (content && content.textContent.trim()) {
+            // Implementar download real aqui no futuro
+            const toast = document.createElement('div');
+            toast.className = 'toast show position-fixed top-0 end-0 m-3';
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="bi bi-download text-primary me-2"></i>
+                    <strong class="me-auto">Download</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    Preparando para impressão...
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                window.print();
+                toast.remove();
+            }, 1000);
+        } else {
+            alert('Nenhum relatório disponível para download.');
+        }
+    }
+
+    // Copiar texto do relatório
+    function copiarTexto() {
+        const content = document.querySelector('.relatorio-ia-content');
+        if (content && content.textContent.trim()) {
+            navigator.clipboard.writeText(content.textContent).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'toast show position-fixed top-0 end-0 m-3';
+                toast.innerHTML = `
+                    <div class="toast-header">
+                        <i class="bi bi-clipboard-check text-success me-2"></i>
+                        <strong class="me-auto">Copiado!</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">
+                        Relatório copiado para a área de transferência.
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }).catch(() => {
+                alert('Erro ao copiar. Tente selecionar e copiar manualmente.');
+            });
+        } else {
+            alert('Nenhum conteúdo para copiar.');
+        }
+    }
+
+    // Verificar status da IA
+    function verificarStatusIA() {
+        fetch('/admin/status-ia')
+            .then(response => response.json())
+            .then(data => {
+                const statusElements = document.querySelectorAll('#ia-status, #ia-status-home');
+                statusElements.forEach(element => {
+                    if (element) {
+                        element.textContent = data.status || 'offline';
+                        element.className = data.disponivel && data.status === 'online'
+                            ? 'badge bg-success'
+                            : 'badge bg-danger';
+                    }
+                });
+            })
+            .catch(error => {
+                console.log('Status IA não disponível:', error);
+                const statusElements = document.querySelectorAll('#ia-status, #ia-status-home');
+                statusElements.forEach(element => {
+                    if (element) {
+                        element.textContent = 'offline';
+                        element.className = 'badge bg-secondary';
+                    }
+                });
+            });
+    }
+
+    // Verificar status ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+        verificarStatusIA();
+
+        // Verificar status periodicamente
+        setInterval(verificarStatusIA, 30000); // A cada 30 segundos
+    });
+</script>
+</th:block>
+
+</html>

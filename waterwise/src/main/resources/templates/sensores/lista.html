@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title>Sensores IoT</title>
+    <link th:href="@{/css/templates-css/sensores-lista.css}" rel="stylesheet" layout:fragment="page-css">
+</head>
+
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header animate-fade-in-up">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-cpu page-title-icon"></i>
+                    Sensores IoT
+                </h1>
+                <p class="page-description">
+                    Monitoramento e gestão de sensores de campo para coleta de dados ambientais
+                </p>
+            </div>
+            
+            <!-- Ações Rápidas -->
+            <div class="quick-actions-card">
+                <div class="quick-actions-buttons">
+                    <a th:href="@{/admin/sensores/novo}" class="quick-action-btn">
+                        <i class="bi bi-plus-circle"></i>
+                        Novo Sensor
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas Rápidas -->
+    <div class="stats-grid animate-stats">
+        <div class="stat-card stat-primary">
+            <i class="bi bi-cpu stat-icon"></i>
+            <div class="stat-value" th:text="${totalSensores ?: 0}">0</div>
+            <div class="stat-label">Total de Sensores</div>
+        </div>
+        
+        <div class="stat-card stat-success">
+            <i class="bi bi-check-circle stat-icon"></i>
+            <div class="stat-value" th:text="${sensoresAtivos ?: 0}">0</div>
+            <div class="stat-label">Sensores Ativos</div>
+        </div>
+        
+        <div class="stat-card stat-info">
+            <i class="bi bi-collection stat-icon"></i>
+            <div class="stat-value" th:text="${tiposSensor ?: 3}">3</div>
+            <div class="stat-label">Tipos de Sensor</div>
+        </div>
+        
+        <div class="stat-card stat-warning">
+            <i class="bi bi-battery stat-icon"></i>
+            <div class="stat-value">100%</div>
+            <div class="stat-label">Bateria Média</div>
+        </div>
+    </div>
+
+    <!-- Lista de Sensores -->
+    <div class="main-section animate-table">
+        <div class="section-header">
+            <h5 class="section-title">
+                <i class="bi bi-list-ul section-icon"></i>
+                Lista de Sensores IoT
+                <span class="badge bg-primary ms-2" th:text="${#lists.size(sensores)}">0</span>
+            </h5>
+        </div>
+        <div class="section-body">
+            <div class="table-responsive">
+                <table class="table-modern">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Modelo</th>
+                        <th>Propriedade</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Bateria</th>
+                        <th class="text-center">Instalação</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="sensor : ${sensores}" class="table-row-modern">
+                        <td>
+                            <div class="sensor-id">
+                                <span class="fw-bold text-primary" th:text="'#' + ${sensor.idSensor}">001</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="sensor-type-info">
+                                <div th:if="${sensor.tipoSensor != null}">
+                                    <span class="sensor-type-name" th:text="${sensor.tipoSensor.nomeTipo}">UMIDADE_SOLO</span>
+                                    <small class="sensor-unit" th:text="${sensor.tipoSensor.unidadeMedida}">%</small>
+                                </div>
+                                <span th:unless="${sensor.tipoSensor != null}" class="text-muted">N/A</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="sensor-model">
+                                <span th:text="${sensor.modeloDispositivo ?: 'Não informado'}">WaterWise-UM-2024-A1</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="property-info">
+                                <div th:if="${sensor.propriedade != null}">
+                                    <a th:href="@{/admin/propriedades/{id}(id=${sensor.propriedade.idPropriedade})}"
+                                       class="property-link">
+                                        <span class="property-name" th:text="${sensor.propriedade.nomePropriedade}">Fazenda Verde</span>
+                                    </a>
+                                    <small class="property-owner"
+                                           th:text="${sensor.propriedade?.produtor?.nomeCompleto ?: 'Proprietário não informado'}">
+                                        João Silva
+                                    </small>
+                                </div>
+                                <span th:unless="${sensor.propriedade != null}" class="text-muted">N/A</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="status-container">
+                                <span class="status-indicator online">
+                                    <span class="status-dot"></span>
+                                    Ativo
+                                </span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="battery-info">
+                                <div class="battery-level">
+                                    <span class="battery-percentage">100%</span>
+                                    <i class="bi bi-battery-full battery-icon text-success"></i>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="installation-date">
+                                <span th:text="${sensor.dataInstalacao != null ? #temporals.format(sensor.dataInstalacao, 'dd/MM/yyyy') : 'N/A'}">01/01/2025</span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="action-buttons">
+                                <a th:href="@{/admin/sensores/{id}(id=${sensor.idSensor})}"
+                                   class="action-btn action-btn-primary" title="Ver detalhes">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a th:href="@{/admin/sensores/{id}/editar(id=${sensor.idSensor})}"
+                                   class="action-btn action-btn-secondary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Empty State -->
+                    <tr th:if="${#lists.isEmpty(sensores)}">
+                        <td colspan="8" class="empty-state">
+                            <i class="bi bi-cpu empty-state-icon"></i>
+                            <h5 class="empty-state-title">Nenhum sensor encontrado</h5>
+                            <p class="empty-state-text">Cadastre sensores para visualizar dados aqui</p>
+                            <div class="empty-state-actions">
+                                <a th:href="@{/admin/sensores/novo}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle me-1"></i>
+                                    Novo Sensor
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumo e Ações Adicionais -->
+    <div class="sensor-summary-section">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="summary-card">
+                    <h6 class="summary-title">Resumo dos Sensores</h6>
+                    <div class="summary-metrics">
+                        <div class="summary-item">
+                            <h5 class="summary-value text-primary" th:text="${#lists.size(sensores)}">8</h5>
+                            <small class="summary-label">Total</small>
+                        </div>
+                        <div class="summary-item">
+                            <h5 class="summary-value text-success" th:text="${sensoresAtivos ?: '-'}">7</h5>
+                            <small class="summary-label">Ativos</small>
+                        </div>
+                        <div class="summary-item">
+                            <h5 class="summary-value text-info" th:text="${tiposSensor ?: '-'}">3</h5>
+                            <small class="summary-label">Tipos</small>
+                        </div>
+                        <div class="summary-item">
+                            <h5 class="summary-value text-warning">100%</h5>
+                            <small class="summary-label">Bateria</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="actions-card">
+                    <h6 class="actions-title">Ações Rápidas</h6>
+                    <div class="actions-buttons">
+                        <a th:href="@{/admin/sensores/novo}" class="action-link-btn">
+                            <i class="bi bi-plus-circle"></i>
+                            Novo Sensor
+                        </a>
+                        <a th:href="@{/admin/sensores/tipos}" class="action-link-btn success">
+                            <i class="bi bi-collection"></i>
+                            Tipos de Sensor
+                        </a>
+                        <a th:href="@{/admin/sensores/relatorio}" class="action-link-btn warning">
+                            <i class="bi bi-graph-up"></i>
+                            Relatório
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete seu Perfil - WaterWise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/templates-css/auth-completeprofile.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-card">
+            <!-- Header de Boas-vindas -->
+            <div class="profile-header">
+                <i class="bi bi-person-plus-fill profile-icon"></i>
+                <h3 class="profile-title">Bem-vindo(a) ao WaterWise!</h3>
+                <p class="welcome-message">
+                    Olá, <strong th:text="${userName}">Usuário</strong>!
+                </p>
+                <p class="welcome-subtitle">
+                    Complete seu perfil para começar a usar o sistema
+                </p>
+            </div>
+
+            <!-- Indicador de Progresso -->
+            <div class="progress-section">
+                <div class="progress-container">
+                    <div class="progress-step">
+                        <div class="step-indicator completed">
+                            <i class="bi bi-check"></i>
+                        </div>
+                        <span class="step-text completed">Login com Google</span>
+                    </div>
+                    
+                    <div class="progress-bar-custom">
+                        <div class="progress-fill"></div>
+                    </div>
+                    
+                    <div class="progress-step">
+                        <div class="step-indicator active">
+                            <i class="bi bi-pencil"></i>
+                        </div>
+                        <span class="step-text active">Complete o Perfil</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulário -->
+            <div class="form-body">
+                <form th:action="@{/complete-profile}" th:object="${produtor}" method="post">
+
+                    <!-- Exibir mensagens de erro globais se houver -->
+                    <div th:if="${#fields.hasAnyErrors()}" class="alert-profile-error">
+                        <h6><i class="bi bi-exclamation-triangle me-2"></i>Corrija os erros abaixo:</h6>
+                        <ul>
+                            <li th:each="err : ${#fields.allErrors()}" th:text="${err}">Erro</li>
+                        </ul>
+                    </div>
+
+                    <h2 class="form-title">Dados Pessoais</h2>
+                    <p class="form-subtitle">Informe seus dados para criar sua conta</p>
+
+                    <!-- Email Verificado -->
+                    <div class="email-verified">
+                        <div class="email-verified-icon">
+                            <i class="bi bi-check"></i>
+                        </div>
+                        <div class="email-verified-content">
+                            <h6>Email verificado via Google</h6>
+                            <p th:text="${userEmail}">usuario@gmail.com</p>
+                        </div>
+                    </div>
+
+                    <!-- Nome Completo -->
+                    <div class="input-group-modern">
+                        <i class="bi bi-person input-icon"></i>
+                        <input type="text" 
+                               class="form-control-modern" 
+                               id="nomeCompleto"
+                               th:field="*{nomeCompleto}"
+                               th:classappend="${#fields.hasErrors('nomeCompleto')} ? 'is-invalid' : ''"
+                               placeholder="Seu nome completo" 
+                               required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nomeCompleto')}">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <span th:each="error : ${#fields.errors('nomeCompleto')}" th:text="${error}" class="d-block">Nome é obrigatório</span>
+                        </div>
+                    </div>
+
+                    <!-- CPF/CNPJ -->
+                    <div class="input-group-modern">
+                        <i class="bi bi-card-text input-icon"></i>
+                        <input type="text" 
+                               class="form-control-modern" 
+                               id="cpfCnpj"
+                               th:field="*{cpfCnpj}"
+                               th:classappend="${#fields.hasErrors('cpfCnpj')} ? 'is-invalid' : ''"
+                               placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                               maxlength="18" 
+                               required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('cpfCnpj')}">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <span th:each="error : ${#fields.errors('cpfCnpj')}" th:text="${error}" class="d-block">CPF/CNPJ é obrigatório</span>
+                        </div>
+                    </div>
+
+                    <!-- Telefone -->
+                    <div class="input-group-modern">
+                        <i class="bi bi-telephone input-icon"></i>
+                        <input type="tel" 
+                               class="form-control-modern" 
+                               id="telefone"
+                               th:field="*{telefone}"
+                               th:classappend="${#fields.hasErrors('telefone')} ? 'is-invalid' : ''"
+                               placeholder="(11) 99999-9999" 
+                               maxlength="15" 
+                               required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('telefone')}">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <span th:each="error : ${#fields.errors('telefone')}" th:text="${error}" class="d-block">Telefone é obrigatório</span>
+                        </div>
+                    </div>
+
+                    <!-- Informações sobre o Sistema -->
+                    <div class="info-section">
+                        <div class="info-header">
+                            <div class="info-icon">
+                                <i class="bi bi-info-circle"></i>
+                            </div>
+                            <h6 class="info-title">Sobre o WaterWise</h6>
+                        </div>
+                        <p class="info-description">Sistema inteligente de prevenção a enchentes</p>
+                        <ul class="info-list">
+                            <li>Monitore propriedades rurais com sensores IoT</li>
+                            <li>Receba alertas automáticos sobre condições críticas</li>
+                            <li>Contribua para a prevenção de enchentes urbanas</li>
+                        </ul>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="button-group">
+                        <button type="submit" class="btn-complete">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Completar Perfil</span>
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: var(--spacing-md);">
+                        <a href="/" class="btn-secondary-modern" style="width: 100%; text-align: center;">
+                            <i class="bi bi-arrow-left"></i>
+                            <span>Sair e Fazer Login Novamente</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="profile-footer">
+                <i class="bi bi-shield-check text-success"></i>
+                <span>Seus dados estão seguros e protegidos</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Formatação automática de CPF/CNPJ
+        document.getElementById('cpfCnpj').addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+
+            if (value.length <= 11) {
+                // CPF: 000.000.000-00
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            } else {
+                // CNPJ: 00.000.000/0000-00
+                value = value.replace(/(\d{2})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1/$2');
+                value = value.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+            }
+
+            this.value = value;
+        });
+
+        // Formatação automática de telefone
+        document.getElementById('telefone').addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
+            this.value = value;
+        });
+
+        // Efeito de loading no submit
+        document.querySelector('form').addEventListener('submit', function() {
+            const submitBtn = document.querySelector('.btn-complete');
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<div class="spinner-border spinner-border-sm me-2" role="status"></div>Processando...';
+            submitBtn.disabled = true;
+        });
+
+        // Animações de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.profile-card');
+            
+            // Entrada suave do card
+            setTimeout(() => {
+                card.style.animation = 'fadeInUp 0.8s ease-out';
+            }, 100);
+            
+            // Animação de entrada dos inputs
+            const inputs = document.querySelectorAll('.input-group-modern');
+            inputs.forEach((input, index) => {
+                setTimeout(() => {
+                    input.style.animation = 'slideInLeft 0.5s ease-out';
+                }, 200 + (index * 100));
+            });
+        });
+
+        // Validação visual em tempo real
+        document.querySelectorAll('.form-control-modern').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '' && this.required) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            input.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.trim() !== '') {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

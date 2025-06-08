@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base}">
+<head>
+    <title th:text="${sensor.idSensor != null ? 'Editar Sensor IoT' : 'Novo Sensor IoT'} + ' - WaterWise'">Novo Sensor IoT - WaterWise</title>
+    <link th:href="@{/css/templates-css/sensores-form.css}" rel="stylesheet" layout:fragment="page-css">
+</head>
+
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <div class="page-header animate-fade-in-up">
+        <div class="breadcrumb-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb-modern">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/admin/dashboard}">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/admin/sensores}">
+                            <i class="bi bi-cpu"></i>
+                            <span>Sensores IoT</span>
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <span th:text="${sensor.idSensor != null ? 'Editar' : 'Novo Sensor'}">Novo Sensor</span>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+        
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="bi bi-cpu page-title-icon"></i>
+                <span th:text="${sensor.idSensor != null ? 'Editar Sensor IoT' : 'Novo Sensor IoT'}">Novo Sensor IoT</span>
+            </h1>
+            <p class="page-description">
+                Gerenciamento de sensores IoT para monitoramento ambiental
+            </p>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <!-- Formulário Principal -->
+        <div class="form-main animate-slide-in">
+            <form th:action="@{/admin/sensores}" th:object="${sensor}" method="post" class="sensor-form">
+                <input type="hidden" th:field="*{idSensor}" />
+                
+                <!-- Informações Básicas -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-info-circle section-icon"></i>
+                            Informações do Sensor
+                        </h5>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="idPropriedade" class="form-label">Propriedade Rural *</label>
+                                <div class="select-wrapper">
+                                    <i class="bi bi-geo-alt select-icon"></i>
+                                    <select class="form-select" id="idPropriedade" 
+                                            th:field="*{idPropriedade}"
+                                            th:classappend="${#fields.hasErrors('idPropriedade')} ? 'is-invalid' : ''"
+                                            required>
+                                        <option value="">Selecione uma propriedade</option>
+                                        <option th:each="propriedade : ${propriedades}"
+                                                th:value="${propriedade.idPropriedade}"
+                                                th:text="${propriedade.nomePropriedade} + ' - ' + ${propriedade.produtor?.nomeCompleto ?: 'Não informado'}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('idPropriedade')}"
+                                     th:errors="*{idPropriedade}">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    <span>Selecione uma propriedade</span>
+                                </div>
+                                <small class="form-help">
+                                    Propriedade onde o sensor será instalado
+                                </small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="idTipoSensor" class="form-label">Tipo de Sensor *</label>
+                                <div class="select-wrapper">
+                                    <i class="bi bi-cpu select-icon"></i>
+                                    <select class="form-select" id="idTipoSensor" 
+                                            th:field="*{idTipoSensor}"
+                                            th:classappend="${#fields.hasErrors('idTipoSensor')} ? 'is-invalid' : ''"
+                                            required>
+                                        <option value="">Selecione o tipo</option>
+                                        <option th:each="tipoSensor : ${tiposSensores}"
+                                                th:value="${tipoSensor.idTipoSensor}"
+                                                th:text="${tipoSensor.nomeTipo}"
+                                                th:data-unidade="${tipoSensor.unidadeMedida}"
+                                                th:data-desc="${tipoSensor.descricao}"
+                                                th:data-min="${tipoSensor.valorMin}"
+                                                th:data-max="${tipoSensor.valorMax}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('idTipoSensor')}"
+                                     th:errors="*{idTipoSensor}">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    <span>Selecione um tipo de sensor</span>
+                                </div>
+                                <small class="form-help" id="tipoDesc">
+                                    Tipo de medição que o sensor realizará
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group form-group-large">
+                                <label for="modeloDispositivo" class="form-label">Modelo do Dispositivo</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-device-hdd input-icon"></i>
+                                    <input type="text" class="form-input" id="modeloDispositivo"
+                                           th:field="*{modeloDispositivo}"
+                                           placeholder="Ex: WaterWise-UM-2024-A1"
+                                           th:classappend="${#fields.hasErrors('modeloDispositivo')} ? 'is-invalid' : ''">
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('modeloDispositivo')}"
+                                     th:errors="*{modeloDispositivo}">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    <span>Erro no modelo do dispositivo</span>
+                                </div>
+                                <small class="form-help">
+                                    Identificação do modelo/versão do sensor
+                                </small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="dataInstalacao" class="form-label">Data de Instalação</label>
+                                <div class="input-wrapper">
+                                    <i class="bi bi-calendar input-icon"></i>
+                                    <input type="datetime-local" class="form-input" id="dataInstalacao" 
+                                           th:field="*{dataInstalacao}"
+                                           th:classappend="${#fields.hasErrors('dataInstalacao')} ? 'is-invalid' : ''">
+                                </div>
+                                <div class="form-feedback invalid-feedback" th:if="${#fields.hasErrors('dataInstalacao')}"
+                                     th:errors="*{dataInstalacao}">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    <span>Data inválida</span>
+                                </div>
+                                <small class="form-help">
+                                    Deixe vazio para usar data atual
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configurações Técnicas -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-gear section-icon"></i>
+                            Configurações Técnicas
+                        </h5>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Faixa de Operação</label>
+                                <div class="range-inputs">
+                                    <div class="input-wrapper">
+                                        <input type="number" class="form-input" placeholder="Min"
+                                               id="valorMin" readonly>
+                                        <span class="input-suffix">Min</span>
+                                    </div>
+                                    <span class="range-separator">até</span>
+                                    <div class="input-wrapper">
+                                        <input type="number" class="form-input" placeholder="Max"
+                                               id="valorMax" readonly>
+                                        <span class="input-suffix">Max</span>
+                                    </div>
+                                    <div class="range-unit">
+                                        <span class="unit-display" id="unidadeMedida">-</span>
+                                    </div>
+                                </div>
+                                <small class="form-help">
+                                    Definida automaticamente pelo tipo de sensor
+                                </small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Frequência de Leitura</label>
+                                <div class="select-wrapper">
+                                    <i class="bi bi-clock select-icon"></i>
+                                    <select class="form-select" name="frequenciaLeitura">
+                                        <option value="15">A cada 15 minutos</option>
+                                        <option value="30" selected>A cada 30 minutos</option>
+                                        <option value="60">A cada 1 hora</option>
+                                        <option value="180">A cada 3 horas</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Status Inicial</label>
+                                <div class="select-wrapper">
+                                    <i class="bi bi-power select-icon"></i>
+                                    <select class="form-select" name="statusOperacional">
+                                        <option value="A" selected>🟢 Ativo</option>
+                                        <option value="I">🔴 Inativo</option>
+                                        <option value="M">🟡 Manutenção</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sensor-info-alert" th:if="!${sensor.idSensor}">
+                            <div class="alert alert-info">
+                                <i class="bi bi-lightbulb alert-icon"></i>
+                                <div class="alert-content">
+                                    <strong>Dica:</strong> Após a instalação, o sensor começará a enviar dados automaticamente.
+                                    Monitore os primeiros dados para verificar se está funcionando corretamente.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                 <div class="form-actions">
+                    <div class="actions-left">
+                        <a class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i>
+                            <span>Voltar</span>
+                        </a>
+                    </div>
+                    <div class="actions-right">
+                        <button class="btn btn-outline-warning">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            <span>Limpar</span>
+                        </button>
+                        <button class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i>
+                            <span th:if/unless>Atualizar/Cadastrar Sensor</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sidebar - Informações de Ajuda -->
+        <div class="form-sidebar animate-fade-in-up">
+            <!-- Preview do Sensor -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="bi bi-eye card-icon"></i>
+                        Preview do Sensor
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="sensorPreview" class="sensor-preview">
+                        <div class="preview-icon">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <h6 class="preview-title">Selecione o tipo de sensor</h6>
+                        <p class="preview-description">
+                            As especificações aparecerão aqui
+                        </p>
+                        <div class="preview-specs">
+                            <div class="spec-item">
+                                <span class="spec-label">Unidade:</span>
+                                <span class="spec-value" id="previewUnidade">-</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Faixa:</span>
+                                <span class="spec-value" id="previewFaixa">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipos de Sensores Disponíveis -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="bi bi-collection card-icon"></i>
+                        Tipos Disponíveis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="sensor-types">
+                        <div class="sensor-type-item">
+                            <div class="sensor-type-header">
+                                <i class="bi bi-droplet text-primary"></i>
+                                <strong>Umidade do Solo</strong>
+                            </div>
+                            <p class="sensor-type-description">
+                                Monitora a umidade do solo para detectar condições de seca ou encharcamento
+                            </p>
+                        </div>
+                        
+                        <div class="sensor-type-item">
+                            <div class="sensor-type-header">
+                                <i class="bi bi-thermometer text-warning"></i>
+                                <strong>Temperatura do Ar</strong>
+                            </div>
+                            <p class="sensor-type-description">
+                                Mede a temperatura ambiente para análise de condições climáticas
+                            </p>
+                        </div>
+                        
+                        <div class="sensor-type-item">
+                            <div class="sensor-type-header">
+                                <i class="bi bi-cloud-rain text-info"></i>
+                                <strong>Precipitação</strong>
+                            </div>
+                            <p class="sensor-type-description">
+                                Detecta e mede a quantidade de chuva para monitoramento de enchentes
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status do Sistema -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="bi bi-activity card-icon"></i>
+                        Status do Sistema
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="system-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">Sensores Ativos</div>
+                            <div class="metric-value text-success">12</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">Propriedades Monitoradas</div>
+                            <div class="metric-value text-primary">8</div>
+                        </div>
+                    </div>
+                    
+                    <div class="system-description">
+                        <p>
+                            Sistema de monitoramento IoT para prevenção de enchentes em Mairiporã-SP
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="page-scripts">
+<script>
+    // Atualizar preview quando mudar o tipo de sensor
+    document.getElementById('idTipoSensor').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const unidade = selectedOption.getAttribute('data-unidade');
+        const desc = selectedOption.getAttribute('data-desc');
+        const valorMin = selectedOption.getAttribute('data-min');
+        const valorMax = selectedOption.getAttribute('data-max');
+        const tipoTexto = selectedOption.textContent;
+
+        const preview = document.getElementById('sensorPreview');
+        const tipoDesc = document.getElementById('tipoDesc');
+        const unidadeMedida = document.getElementById('unidadeMedida');
+        const inputMin = document.getElementById('valorMin');
+        const inputMax = document.getElementById('valorMax');
+        const previewUnidade = document.getElementById('previewUnidade');
+        const previewFaixa = document.getElementById('previewFaixa');
+
+        if (unidade && desc) {
+            // Atualizar preview
+            preview.querySelector('.preview-icon i').className = 'bi bi-cpu text-success';
+            preview.querySelector('.preview-title').textContent = tipoTexto;
+            preview.querySelector('.preview-description').textContent = desc;
+            
+            // Atualizar especificações
+            previewUnidade.textContent = unidade || '-';
+            previewFaixa.textContent = valorMin && valorMax ? `${valorMin} - ${valorMax}` : '-';
+            
+            // Atualizar campos do formulário
+            tipoDesc.textContent = desc;
+            unidadeMedida.textContent = unidade || '-';
+            inputMin.value = valorMin || '';
+            inputMax.value = valorMax || '';
+            
+            // Adicionar classe de sucesso
+            preview.classList.add('preview-selected');
+        } else {
+            // Reset para estado inicial
+            preview.querySelector('.preview-icon i').className = 'bi bi-cpu';
+            preview.querySelector('.preview-title').textContent = 'Selecione o tipo de sensor';
+            preview.querySelector('.preview-description').textContent = 'As especificações aparecerão aqui';
+            
+            previewUnidade.textContent = '-';
+            previewFaixa.textContent = '-';
+            tipoDesc.textContent = 'Tipo de medição que o sensor realizará';
+            unidadeMedida.textContent = '-';
+            inputMin.value = '';
+            inputMax.value = '';
+            
+            preview.classList.remove('preview-selected');
+        }
+    });
+
+    // Definir data atual como padrão se for um novo sensor
+    document.addEventListener('DOMContentLoaded', function() {
+        const dataInstalacao = document.getElementById('dataInstalacao');
+        
+        // Só define data atual se for um novo sensor (campo vazio)
+        if (!dataInstalacao.value) {
+            const agora = new Date();
+            agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+            dataInstalacao.value = agora.toISOString().slice(0, 16);
+        }
+
+        // Trigger para carregar preview se já tem tipo selecionado (edição)
+        document.getElementById('idTipoSensor').dispatchEvent(new Event('change'));
+        
+        // Animações de entrada
+        setTimeout(() => {
+            document.querySelectorAll('.form-section').forEach((section, index) => {
+                setTimeout(() => {
+                    section.style.opacity = '0';
+                    section.style.transform = 'translateY(20px)';
+                    section.style.transition = 'all 0.6s ease-out';
+                    
+                    setTimeout(() => {
+                        section.style.opacity = '1';
+                        section.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+        }, 200);
+        
+        console.log('✅ Sensores Form: Sistema inicializado');
+    });
+
+    // Resetar formulário
+    function resetForm() {
+        if (confirm('Tem certeza que deseja limpar o formulário?')) {
+            document.querySelector('.sensor-form').reset();
+            
+            // Resetar data para atual
+            const agora = new Date();
+            agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+            document.getElementById('dataInstalacao').value = agora.toISOString().slice(0, 16);
+
+            // Resetar preview
+            const preview = document.getElementById('sensorPreview');
+            preview.querySelector('.preview-icon i').className = 'bi bi-cpu';
+            preview.querySelector('.preview-title').textContent = 'Selecione o tipo de sensor';
+            preview.querySelector('.preview-description').textContent = 'As especificações aparecerão aqui';
+            preview.classList.remove('preview-selected');
+            
+            document.getElementById('previewUnidade').textContent = '-';
+            document.getElementById('previewFaixa').textContent = '-';
+            
+            showToast('Formulário limpo!', 'info');
+        }
+    }
+
+    // Toast notification helper
+    function showToast(message, type = 'info') {
+        const toastId = 'toast-' + Date.now();
+        const typeClass = {
+            'success': 'bg-success',
+            'error': 'bg-danger',
+            'warning': 'bg-warning',
+            'info': 'bg-info'
+        };
+        
+        const toast = document.createElement('div');
+        toast.id = toastId;
+        toast.className = `toast show position-fixed top-0 end-0 m-3 ${typeClass[type]} text-white`;
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            <div class="toast-body">
+                ${message}
+                <button type="button" class="btn-close btn-close-white ms-2" onclick="document.getElementById('${toastId}').remove()"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            if (document.getElementById(toastId)) {
+                document.getElementById(toastId).remove();
+            }
+        }, 3000);
+    }
+
+    // Validação visual em tempo real
+    document.querySelectorAll('.form-input, .form-select').forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() === '' && this.required) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid') && this.value.trim() !== '') {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+
+    // Efeito de loading no submit
+    document.querySelector('.sensor-form').addEventListener('submit', function() {
+        const submitBtn = document.querySelector('.btn-submit');
+        const originalContent = submitBtn.innerHTML;
+        
+        submitBtn.classList.add('loading');
+        submitBtn.innerHTML = '<div class="spinner-border spinner-border-sm me-2" role="status"></div>Processando...';
+        submitBtn.disabled = true;
+        
+        // Em caso de erro, restaurar o botão (simular delay)
+        setTimeout(() => {
+            if (submitBtn.classList.contains('loading')) {
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+            }
+        }, 10000);
+    });
+</script>
+</th:block>
+</html>

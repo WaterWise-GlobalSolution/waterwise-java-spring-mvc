@@ -1,0 +1,504 @@
+@import url(../main.css);
+
+/* ========== NOTIFICAÇÕES LISTA - CSS ESPECÍFICO ========== */
+
+/* Status de integração no header */
+.integration-status {
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition-fast);
+}
+
+.integration-status.online {
+    color: var(--waterwise-success);
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.integration-status.offline {
+    color: var(--waterwise-danger);
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.integration-status.loading {
+    color: var(--waterwise-text-muted);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Container de notificações */
+.notifications-container {
+    /* Container principal das notificações */
+}
+
+/* Item de notificação */
+.notification-item {
+    border-left: 4px solid var(--waterwise-border);
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition-fast);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.notification-item:hover {
+    background: rgba(0, 255, 204, 0.05);
+    transform: translateX(5px);
+    box-shadow: var(--shadow-sm);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+/* Estados por tipo de notificação */
+.notification-item.notification-danger {
+    border-left-color: var(--waterwise-danger);
+}
+
+.notification-item.notification-warning {
+    border-left-color: var(--waterwise-warning);
+}
+
+.notification-item.notification-success {
+    border-left-color: var(--waterwise-success);
+}
+
+.notification-item.notification-info {
+    border-left-color: var(--waterwise-info);
+}
+
+/* Notificação não lida */
+.notification-item.unread {
+    background: linear-gradient(90deg, rgba(0, 255, 204, 0.08) 0%, rgba(255,255,255,0.02) 100%);
+    border-left-width: 6px;
+}
+
+.notification-item.unread::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background: var(--waterwise-primary);
+    border-radius: 50%;
+    margin: var(--spacing-md);
+}
+
+/* Conteúdo da notificação */
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    opacity: 0.9;
+}
+
+.notification-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-sm);
+    gap: var(--spacing-md);
+}
+
+.notification-title {
+    color: var(--waterwise-text);
+    font-weight: 600;
+    margin: 0;
+    font-size: 1rem;
+    flex: 1;
+}
+
+.notification-time {
+    color: var(--waterwise-text-muted);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.notification-message {
+    color: var(--waterwise-text-secondary);
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.notification-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.notification-badge {
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+}
+
+.notification-new {
+    background: var(--waterwise-warning);
+    color: var(--waterwise-background);
+    font-size: 0.65rem;
+    padding: 0.25em 0.5em;
+    border-radius: var(--border-radius-xl);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: pulse 2s infinite;
+}
+
+/* Controles de notificação */
+.notification-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+/* Loading state específico */
+.notification-loading {
+    padding: var(--spacing-2xl);
+    text-align: center;
+}
+
+.notification-loading .loading-skeleton {
+    height: 60px;
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+}
+
+/* Seção de debug */
+.debug-section {
+    margin-top: var(--spacing-2xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.debug-section .card {
+    background: var(--gradient-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-normal);
+}
+
+.debug-section .card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.debug-section .card-header {
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--waterwise-border);
+}
+
+.debug-section .card-title {
+    margin: 0;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* Grid de status */
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.status-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    text-align: center;
+}
+
+.status-value {
+    font-weight: 600;
+    color: var(--waterwise-text);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Animações específicas */
+@keyframes notificationSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification-item {
+    animation: notificationSlideIn 0.3s ease-out;
+}
+
+.notification-item:nth-child(1) { animation-delay: 0.1s; }
+.notification-item:nth-child(2) { animation-delay: 0.15s; }
+.notification-item:nth-child(3) { animation-delay: 0.2s; }
+.notification-item:nth-child(4) { animation-delay: 0.25s; }
+.notification-item:nth-child(5) { animation-delay: 0.3s; }
+
+/* Estados específicos dos stat cards */
+.stat-card.stat-danger {
+    background: linear-gradient(135deg, var(--waterwise-danger) 0%, #D32F2F 100%);
+    color: white;
+}
+
+/* Toast customizado para notificações */
+.toast {
+    background: var(--waterwise-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    color: var(--waterwise-text);
+}
+
+.toast-header {
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--waterwise-border);
+    color: var(--waterwise-text);
+}
+
+.toast-body {
+    font-weight: 500;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+}
+
+/* Pulse animation para badge novo */
+@keyframes badgePulse {
+    0% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+    }
+    70% { 
+        transform: scale(1.1);
+        box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+    }
+    100% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    }
+}
+
+.notification-new {
+    animation: badgePulse 2s infinite;
+}
+
+/* Melhorias para mobile */
+@media (max-width: 768px) {
+    .notification-item {
+        padding: var(--spacing-md);
+    }
+    
+    .notification-item:hover {
+        transform: none;
+    }
+    
+    .notification-content {
+        gap: var(--spacing-sm);
+    }
+    
+    .notification-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+    
+    .notification-time {
+        font-size: 0.7rem;
+    }
+    
+    .notification-footer {
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
+    }
+    
+    .debug-section {
+        margin-top: var(--spacing-xl);
+    }
+    
+    .status-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+    
+    .integration-status {
+        display: block;
+        margin-top: var(--spacing-xs);
+        text-align: center;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .notification-item {
+        padding: var(--spacing-sm);
+    }
+    
+    .notification-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .notification-icon {
+        align-self: center;
+        font-size: 1.25rem;
+    }
+    
+    .notification-header {
+        text-align: center;
+        width: 100%;
+    }
+    
+    .notification-footer {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .debug-section .card-body {
+        padding: var(--spacing-md);
+    }
+}
+
+/* Hover effects específicos para desktop */
+@media (hover: hover) {
+    .notification-item:hover .notification-icon {
+        transform: scale(1.1);
+        transition: var(--transition-fast);
+    }
+    
+    .notification-item:hover .notification-title {
+        color: var(--waterwise-primary);
+        transition: var(--transition-fast);
+    }
+    
+    .debug-section .card:hover .card-title i {
+        animation: pulse 1s infinite;
+    }
+}
+
+/* Estados de interação para touch devices */
+@media (hover: none) {
+    .notification-item:active {
+        background: rgba(0, 255, 204, 0.1);
+        transform: scale(0.98);
+    }
+}
+
+/* Melhorias de acessibilidade */
+.notification-item:focus {
+    outline: 2px solid var(--waterwise-primary);
+    outline-offset: 2px;
+}
+
+.notification-item[aria-pressed="true"] {
+    background: rgba(0, 255, 204, 0.1);
+}
+
+/* Estados de loading melhorados */
+.notification-loading .loading-skeleton:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.notification-loading .loading-skeleton:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.notification-loading .loading-skeleton:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+/* Customização específica para diferentes origens */
+.notification-item[data-origem="DOTNET_SENSOR"] {
+    border-left-color: var(--waterwise-info);
+}
+
+.notification-item[data-origem="DOTNET_API"] {
+    border-left-color: var(--waterwise-primary);
+}
+
+.notification-item[data-origem="TESTE"] {
+    border-left-color: var(--waterwise-text-muted);
+    opacity: 0.8;
+}
+
+/* Indicador visual para tipos críticos */
+.notification-item.notification-danger::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 4px;
+    background: var(--waterwise-danger);
+    opacity: 0.3;
+}
+
+/* Efeito de shimmer para notificações novas */
+.notification-item.unread::before {
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+/* Otimizações de performance */
+.notification-item,
+.debug-section .card {
+    will-change: transform;
+}
+
+/* Layout para impressão */
+@media print {
+    .debug-section,
+    .notification-controls,
+    .quick-actions-card {
+        display: none !important;
+    }
+    
+    .notification-item {
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid;
+        transform: none !important;
+        background: white !important;
+        color: black !important;
+    }
+    
+    .notification-title {
+        color: black !important;
+    }
+    
+    .page-title {
+        color: black !important;
+        font-size: 18pt;
+    }
+}

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      th:lang="${#locale.language ?: 'pt'}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" th:href="@{/assets/brand/waterwise-icone.png}">
+    <title layout:title-pattern="$CONTENT_TITLE - WaterWise"></title>
+    <meta name="description" th:content="#{app.descricao}">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- WaterWise CSS -->
+    <link th:href="@{/css/templates-css/layouts-base.css}" rel="stylesheet">
+
+    <!-- CSS específico da página -->
+    <th:block layout:fragment="page-css"></th:block>
+    
+    <script>
+    function changeLanguage(lang) {
+        const url = new URL(window.location);
+        url.searchParams.set('lang', lang);
+        window.location.href = url.toString();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentLang = urlParams.get('lang') || 'pt';
+        
+        const flagElement = document.getElementById('currentFlag');
+        const langElement = document.getElementById('currentLang');
+        
+        if (currentLang === 'en') {
+            flagElement.textContent = '🇺🇸';
+            langElement.textContent = 'EN';
+            document.getElementById('lang-en')?.classList.add('active');
+            document.getElementById('lang-pt')?.classList.remove('active');
+        } else {
+            flagElement.textContent = '🇧🇷';
+            langElement.textContent = 'PT';
+            document.getElementById('lang-pt')?.classList.add('active');
+            document.getElementById('lang-en')?.classList.remove('active');
+        }
+        
+        if (currentLang && currentLang !== 'pt') {
+            document.addEventListener('click', function(e) {
+                const link = e.target.closest('a');
+                if (link && link.href && !link.href.includes('javascript:') && !link.href.includes('#')) {
+                    const url = new URL(link.href);
+                    if (!url.searchParams.has('lang')) {
+                        url.searchParams.set('lang', currentLang);
+                        link.href = url.toString();
+                    }
+                }
+            });
+            
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form.method.toLowerCase() === 'get') {
+                    const existingLangInput = form.querySelector('input[name="lang"]');
+                    if (!existingLangInput) {
+                        const langInput = document.createElement('input');
+                        langInput.type = 'hidden';
+                        langInput.name = 'lang';
+                        langInput.value = currentLang;
+                        form.appendChild(langInput);
+                    }
+                }
+            });
+        }
+    });
+    </script>
+</head>
+<body>
+
+<!-- Navbar WaterWise -->
+<nav class="navbar navbar-expand-lg navbar-waterwise">
+    <div class="container-fluid">
+        <a class="navbar-brand-modern" th:href="@{/admin/dashboard}" th:title="#{app.descricao}">
+            W<span style="color: #00FFCC;">A</span>TER W<span style="color: #00FFCC;">I</span>SE ADMIN
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                th:aria-label="#{nav.menu.principal}">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav navbar-nav-modern me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/dashboard}"
+                       th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}"
+                       th:title="#{nav.dashboard.tooltip}">
+                        <i class="bi bi-speedometer2"></i>
+                        <span th:text="#{nav.dashboard}">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/propriedades}"
+                       th:classappend="${activeMenu == 'propriedades' ? 'active' : ''}"
+                       th:title="#{nav.propriedades.tooltip}">
+                        <i class="bi bi-geo-alt"></i>
+                        <span th:text="#{nav.propriedades}">Propriedades Rurais</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/relatorio-ia}"
+                       th:classappend="${activeMenu == 'relatorio-ia' ? 'active' : ''}"
+                       th:title="#{nav.relatorio.ia.tooltip}">
+                        <i class="bi bi-robot"></i>
+                        <span th:text="#{nav.relatorio.ia}">Relatórios IA</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/sensores}"
+                       th:classappend="${activeMenu == 'sensores' ? 'active' : ''}"
+                       th:title="#{nav.sensores.tooltip}">
+                        <i class="bi bi-cpu"></i>
+                        <span th:text="#{nav.sensores}">Sensores IoT</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'notificacoes' ? 'active' : ''}"
+                         th:href="@{/admin/notificacoes}" title="Notificações">
+                        <i class="bi bi-bell"></i>
+                        <span th:text="#{notificacoes.notificacoes}">Notificações</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Seletor de idioma -->
+            <div class="dropdown language-dropdown me-3">
+                <button class="btn dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" th:aria-label="#{nav.idioma}">
+                    <i class="bi bi-translate"></i>
+                    <span class="language-flag" id="currentFlag">🇧🇷</span>
+                    <span id="currentLang">PT</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" 
+                           href="javascript:void(0)"
+                           onclick="changeLanguage('pt')"
+                           id="lang-pt">
+                            🇧🇷 <span>Português</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" 
+                           href="javascript:void(0)"
+                           onclick="changeLanguage('en')"
+                           id="lang-en">
+                            🇺🇸 <span>English</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- User menu -->
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="logout-btn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span th:text="#{nav.usuario.sair}">Sair</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- Alert Messages -->
+<div class="container-fluid global-alerts" th:if="${sucesso != null or erro != null}">
+    <div class="alert alert-modern alert-success" role="alert" th:if="${sucesso}">
+        <i class="bi bi-check-circle-fill alert-icon"></i>
+        <div class="alert-content">
+            <span th:text="${sucesso}">Sucesso!</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" th:aria-label="#{btn.fechar}"></button>
+    </div>
+
+    <div class="alert alert-modern alert-danger" role="alert" th:if="${erro}">
+        <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+        <div class="alert-content">
+            <span th:text="${erro}">Erro!</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" th:aria-label="#{btn.fechar}"></button>
+    </div>
+</div>
+
+<!-- Main Content -->
+<main class="container-fluid main-container" role="main">
+    <!-- Aqui é onde o conteúdo específico de cada página será inserido -->
+    <div layout:fragment="content">
+        <!-- Conteúdo padrão se nenhum for definido -->
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-exclamation-triangle display-1 opacity-25"></i>
+            <h1 th:text="#{msg.conteudo.nao.definido}">Conteúdo não definido</h1>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer-waterwise">
+    <div class="container footer-content">
+        <div class="footer-brand">
+            <i class="bi bi-droplet-fill footer-brand-icon"></i>
+            <strong th:text="#{app.nome}">WaterWise</strong>
+            <span>© 2025</span>
+        </div>
+        <p class="footer-description" th:text="#{footer.sistema}">
+            Sistema Inteligente de Prevenção a Enchentes - Mairiporã/SP
+        </p>
+        <div class="footer-links">
+            <a href="#" class="footer-link" th:text="#{footer.documentacao}">Documentação</a>
+            <a href="#" class="footer-link" th:text="#{footer.suporte}">Suporte</a>
+            <a href="#" class="footer-link">Política de Privacidade</a>
+            <a href="#" class="footer-link">Termos de Uso</a>
+        </div>
+        <p class="footer-version" th:text="#{footer.versao} + ' | Powered by Oracle Database'">
+            Versão 1.0.0 | Powered by Oracle Database
+        </p>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript específico da página -->
+<th:block layout:fragment="page-scripts"></th:block>
+
+<!-- Scripts globais -->
+<script>
+    // Auto-hide de alertas após 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert-modern');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                if (bsAlert) {
+                    bsAlert.close();
+                }
+            });
+        }, 5000);
+        
+        // Adicionar efeitos de hover na navbar
+        const navLinks = document.querySelectorAll('.navbar-nav-modern .nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-1px)';
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Indicar página ativa
+        const currentPath = window.location.pathname;
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    });
+    
+    // Smooth scroll para links internos
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

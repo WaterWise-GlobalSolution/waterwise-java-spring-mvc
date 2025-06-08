@@ -1,0 +1,63 @@
+@import url(../main.css);
+
+/* ========== DASHBOARD - CSS ESPECÍFICO ========== */
+
+/* Badges da Tabela */
+.badge-position {
+    background: var(--waterwise-background);
+    color: var(--waterwise-primary);
+    font-weight: 700;
+    padding: 0.5em 0.75em;
+    border-radius: var(--border-radius-sm);
+}
+
+/* Capacidade específica do dashboard */
+.capacity-indicator {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    min-width: 100px;
+}
+
+.capacity-value {
+    font-weight: 700;
+    color: var(--waterwise-success);
+    font-size: 0.875rem;
+}
+
+.capacity-level {
+    font-size: 0.75rem;
+    color: var(--waterwise-text-muted);
+    text-transform: uppercase;
+}
+
+/* Animações específicas do dashboard */
+.animate-stats {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-stats:nth-child(1) { animation-delay: 0.1s; }
+.animate-stats:nth-child(2) { animation-delay: 0.2s; }
+.animate-stats:nth-child(3) { animation-delay: 0.3s; }
+.animate-stats:nth-child(4) { animation-delay: 0.4s; }
+
+.animate-table {
+    animation: slideInLeft 0.6s ease-out;
+    animation-delay: 0.5s;
+    animation-fill-mode: both;
+}
+
+/* Hover Effects específicos do dashboard */
+@media (hover: hover) {
+    .stat-card:hover .stat-icon {
+        animation: pulse 1s infinite;
+    }
+    
+    .table-modern tbody tr:hover .action-btn {
+        transform: scale(1.1);
+    }
+    
+    .quick-action-btn:hover {
+        box-shadow: 0 8px 25px rgba(0, 255, 204, 0.3);
+    }
+}

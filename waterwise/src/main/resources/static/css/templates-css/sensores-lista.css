@@ -1,0 +1,490 @@
+/* ========== SENSORES LISTA - CSS ESPECÍFICO ADICIONAL ========== */
+
+/* Animações específicas para sensores */
+.animate-stats .stat-card:nth-child(1) { animation-delay: 0.1s; }
+.animate-stats .stat-card:nth-child(2) { animation-delay: 0.2s; }
+.animate-stats .stat-card:nth-child(3) { animation-delay: 0.3s; }
+.animate-stats .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Hover effects específicos para sensores */
+@media (hover: hover) {
+    .stat-card:hover .stat-icon {
+        animation: pulse 1s infinite;
+    }
+    
+    .quick-action-btn:hover {
+        box-shadow: 0 8px 25px rgba(0, 255, 204, 0.3);
+    }
+}
+
+/* Estados específicos dos ícones */
+.stat-icon.bi-cpu {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.stat-icon.bi-check-circle {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.stat-icon.bi-droplet {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.stat-icon.bi-battery {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Responsividade específica para página de sensores */
+@media (max-width: 768px) {
+    .page-header {
+        text-align: center;
+        margin-bottom: var(--spacing-xl);
+    }
+    
+    .page-title {
+        font-size: 1.75rem;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .quick-actions-buttons {
+        flex-direction: column;
+    }
+    
+    .quick-action-btn {
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+
+@import url(../main.css);
+
+/* ========== SENSORES LISTA - CSS ESPECÍFICO ========== */
+
+/* Informações específicas do sensor */
+.sensor-id {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.sensor-type-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.sensor-type-name {
+    font-weight: 600;
+    color: var(--waterwise-text);
+    font-size: 0.95rem;
+}
+
+.sensor-unit {
+    color: var(--waterwise-text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 500;
+    background: rgba(0, 255, 204, 0.1);
+    padding: 0.25em 0.5em;
+    border-radius: var(--border-radius-sm);
+    display: inline-block;
+}
+
+.sensor-model {
+    color: var(--waterwise-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Informações da propriedade vinculada */
+.property-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.property-link {
+    text-decoration: none;
+    color: var(--waterwise-primary);
+    transition: var(--transition-fast);
+}
+
+.property-link:hover {
+    color: var(--waterwise-text);
+    text-decoration: none;
+}
+
+.property-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.property-owner {
+    color: var(--waterwise-text-muted);
+    font-size: 0.8rem;
+    display: block;
+}
+
+/* Status específico do sensor */
+.status-container {
+    display: flex;
+    justify-content: center;
+}
+
+/* Informações da bateria */
+.battery-info {
+    display: flex;
+    justify-content: center;
+}
+
+.battery-level {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: var(--border-radius-sm);
+}
+
+.battery-percentage {
+    font-weight: 600;
+    color: var(--waterwise-success);
+    font-size: 0.875rem;
+}
+
+.battery-icon {
+    font-size: 1rem;
+}
+
+/* Data de instalação */
+.installation-date {
+    color: var(--waterwise-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Seção de resumo */
+.sensor-summary-section {
+    margin-top: var(--spacing-2xl);
+}
+
+.summary-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: var(--transition-normal);
+}
+
+.summary-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.summary-title {
+    color: var(--waterwise-text);
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    font-size: 1rem;
+}
+
+.summary-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+.summary-label {
+    color: var(--waterwise-text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Actions card */
+.actions-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+    transition: var(--transition-normal);
+}
+
+.actions-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.actions-title {
+    color: var(--waterwise-text);
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    font-size: 1rem;
+}
+
+.actions-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.action-link-btn {
+    background: rgba(0, 255, 204, 0.1);
+    color: var(--waterwise-primary);
+    border: 1px solid rgba(0, 255, 204, 0.2);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    transition: var(--transition-fast);
+}
+
+.action-link-btn:hover {
+    background: rgba(0, 255, 204, 0.2);
+    transform: translateY(-1px);
+    color: var(--waterwise-primary);
+}
+
+.action-link-btn.success {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--waterwise-success);
+    border-color: rgba(76, 175, 80, 0.2);
+}
+
+.action-link-btn.success:hover {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--waterwise-success);
+}
+
+.action-link-btn.warning {
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--waterwise-warning);
+    border-color: rgba(255, 152, 0, 0.2);
+}
+
+.action-link-btn.warning:hover {
+    background: rgba(255, 152, 0, 0.2);
+    color: var(--waterwise-warning);
+}
+
+/* Estados específicos de bateria */
+.battery-level.low {
+    background: rgba(255, 152, 0, 0.1);
+}
+
+.battery-level.low .battery-percentage {
+    color: var(--waterwise-warning);
+}
+
+.battery-level.critical {
+    background: rgba(244, 67, 54, 0.1);
+}
+
+.battery-level.critical .battery-percentage {
+    color: var(--waterwise-danger);
+}
+
+.battery-level.critical .battery-icon {
+    color: var(--waterwise-danger);
+}
+
+/* Animações específicas */
+.animate-stats .stat-card {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.animate-stats .stat-card:nth-child(1) { animation-delay: 0.1s; }
+.animate-stats .stat-card:nth-child(2) { animation-delay: 0.2s; }
+.animate-stats .stat-card:nth-child(3) { animation-delay: 0.3s; }
+.animate-stats .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+.animate-table {
+    animation: slideInLeft 0.6s ease-out;
+    animation-delay: 0.5s;
+    animation-fill-mode: both;
+}
+
+/* Responsividade específica */
+@media (max-width: 1200px) {
+    .summary-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .sensor-summary-section {
+        margin-top: var(--spacing-xl);
+    }
+    
+    .summary-metrics {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+    
+    .summary-value {
+        font-size: 1.25rem;
+    }
+    
+    .actions-buttons {
+        gap: var(--spacing-xs);
+    }
+    
+    .table-modern {
+        font-size: 0.875rem;
+    }
+    
+    .table-modern thead th,
+    .table-modern tbody td {
+        padding: var(--spacing-md);
+    }
+    
+    .property-info,
+    .sensor-type-info {
+        text-align: center;
+    }
+    
+    .battery-level {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+}
+
+@media (max-width: 576px) {
+    .summary-metrics {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+    
+    .table-modern thead th,
+    .table-modern tbody td {
+        padding: var(--spacing-sm);
+        font-size: 0.8rem;
+    }
+    
+    .sensor-type-info,
+    .property-info {
+        align-items: center;
+    }
+    
+    .sensor-unit {
+        font-size: 0.65rem;
+    }
+    
+    .actions-card {
+        margin-top: var(--spacing-lg);
+    }
+}
+
+/* Hover Effects específicos para desktop */
+@media (hover: hover) {
+    .stat-card:hover .stat-icon {
+        animation: pulse 1s infinite;
+    }
+    
+    .table-row-modern:hover .action-btn {
+        transform: scale(1.1);
+    }
+    
+    .property-link:hover .property-name {
+        color: var(--waterwise-primary);
+    }
+    
+    .sensor-type-info:hover .sensor-unit {
+        background: rgba(0, 255, 204, 0.2);
+    }
+}
+
+/* Estados de diferentes tipos de sensores */
+.sensor-type-info[data-type="UMIDADE_SOLO"] .sensor-unit {
+    background: rgba(33, 150, 243, 0.1);
+    color: var(--waterwise-info);
+}
+
+.sensor-type-info[data-type="TEMPERATURA"] .sensor-unit {
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--waterwise-warning);
+}
+
+.sensor-type-info[data-type="PRECIPITACAO"] .sensor-unit {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--waterwise-success);
+}
+
+/* Indicadores visuais para status offline */
+.status-indicator.offline {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--waterwise-danger);
+}
+
+.status-indicator.maintenance {
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--waterwise-warning);
+}
+
+/* Melhorias de acessibilidade */
+.action-btn:focus,
+.property-link:focus,
+.action-link-btn:focus {
+    outline: 2px solid rgba(0, 255, 204, 0.5);
+    outline-offset: 2px;
+}
+
+/* Otimizações de performance */
+.stat-card,
+.summary-card,
+.actions-card,
+.action-btn {
+    will-change: transform;
+}
+
+/* Layout para impressão */
+@media print {
+    .quick-actions-card,
+    .sensor-summary-section,
+    .action-buttons {
+        display: none !important;
+    }
+    
+    .main-section {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+    
+    .table-modern {
+        font-size: 12pt;
+        color: black !important;
+    }
+    
+    .page-title {
+        color: black !important;
+        font-size: 18pt;
+    }
+    
+    .sensor-type-name,
+    .property-name {
+        color: black !important;
+    }
+}

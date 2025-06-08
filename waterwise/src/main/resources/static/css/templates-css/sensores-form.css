@@ -1,0 +1,569 @@
+@import url(../main.css);
+
+/* ========== SENSORES FORM - CSS ESPECÍFICO ========== */
+
+/* Layout específico do formulário de sensores */
+.form-container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: var(--spacing-2xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.form-main {
+    /* Container principal do formulário */
+}
+
+.sensor-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+/* Header específico */
+.header-content {
+    text-align: center;
+}
+
+/* Inputs de faixa específicos */
+.range-inputs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.range-separator {
+    color: var(--waterwise-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+    padding: 0 var(--spacing-xs);
+}
+
+.range-unit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md);
+    background: var(--waterwise-border);
+    border-radius: var(--border-radius-md);
+    min-width: 60px;
+}
+
+.unit-display {
+    color: var(--waterwise-text);
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+}
+
+/* Alert específico para sensores */
+.sensor-info-alert {
+    margin-top: var(--spacing-lg);
+}
+
+/* Sidebar específica */
+.form-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.sidebar-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: var(--transition-normal);
+}
+
+.sidebar-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+/* Preview do sensor */
+.sensor-preview {
+    text-align: center;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    background: rgba(255, 255, 255, 0.02);
+    transition: var(--transition-normal);
+}
+
+.sensor-preview.preview-selected {
+    background: rgba(0, 255, 204, 0.1);
+    border: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.preview-icon {
+    margin-bottom: var(--spacing-md);
+}
+
+.preview-icon i {
+    font-size: 3rem;
+    color: var(--waterwise-text-muted);
+    opacity: 0.5;
+    transition: var(--transition-normal);
+}
+
+.sensor-preview.preview-selected .preview-icon i {
+    color: var(--waterwise-success);
+    opacity: 1;
+    animation: pulse 2s infinite;
+}
+
+.preview-title {
+    color: var(--waterwise-text);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    font-size: 1rem;
+}
+
+.preview-description {
+    color: var(--waterwise-text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.5;
+}
+
+.preview-specs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--waterwise-border);
+}
+
+.spec-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.spec-label {
+    color: var(--waterwise-text-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.spec-value {
+    color: var(--waterwise-text);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+/* form actions */
+.form-actions {
+    background: var(--gradient-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.actions-left,
+.actions-right {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+/* Tipos de sensores */
+.sensor-types {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.sensor-type-item {
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--waterwise-border);
+}
+
+.sensor-type-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.sensor-type-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.sensor-type-header i {
+    font-size: 1.25rem;
+}
+
+.sensor-type-header strong {
+    color: var(--waterwise-text);
+    font-weight: 600;
+}
+
+.sensor-type-description {
+    color: var(--waterwise-text-secondary);
+    font-size: 0.8rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Métricas do sistema */
+.system-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.metric-item {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+}
+
+.metric-label {
+    color: var(--waterwise-text-muted);
+    font-size: 0.75rem;
+    margin-bottom: var(--spacing-xs);
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.system-description {
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--waterwise-border);
+}
+
+.system-description p {
+    color: var(--waterwise-text-muted);
+    font-size: 0.8rem;
+    margin: 0;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* Estados de loading específicos */
+.btn-submit.loading {
+    pointer-events: none;
+    position: relative;
+}
+
+.btn-submit.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmerBtn 1.5s infinite;
+}
+
+@keyframes shimmerBtn {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}
+
+/* Ajustes específicos para ícones nos inputs e selects */
+.input-wrapper .form-input,
+.select-wrapper .form-select {
+    padding-left: 3.5rem !important;
+}
+
+.input-wrapper .input-icon,
+.select-wrapper .select-icon {
+    left: 1rem !important;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.input-wrapper .input-suffix {
+    right: 1rem !important;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Ajustes para inputs de range */
+.range-inputs .input-wrapper .form-input {
+    padding-left: var(--spacing-md) !important;
+    padding-right: 3rem !important;
+}
+
+.range-inputs .input-wrapper .input-suffix {
+    right: var(--spacing-sm) !important;
+}
+
+/* Hover effects específicos para desktop */
+@media (hover: hover) {
+    .sensor-type-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: var(--border-radius-sm);
+        padding: var(--spacing-sm);
+        margin: calc(var(--spacing-sm) * -1);
+        transition: var(--transition-fast);
+    }
+    
+    .sensor-type-item:hover .sensor-type-header i {
+        transform: scale(1.1);
+        transition: var(--transition-fast);
+    }
+    
+    .form-section:hover .section-icon {
+        animation: pulse 1s infinite;
+    }
+    
+    .sidebar-card:hover .card-icon {
+        animation: pulse 1s infinite;
+    }
+    
+    .input-wrapper:hover .form-input:not(:focus),
+    .input-wrapper:hover .form-select:not(:focus) {
+        border-color: var(--waterwise-primary);
+    }
+    
+    .input-wrapper:hover .input-icon,
+    .select-wrapper:hover .select-icon {
+        color: var(--waterwise-primary);
+    }
+}
+
+/* Responsividade específica */
+@media (max-width: 1200px) {
+    .form-container {
+        grid-template-columns: 1fr 300px;
+        gap: var(--spacing-xl);
+    }
+}
+
+@media (max-width: 992px) {
+    .form-container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .form-sidebar {
+        order: -1;
+    }
+    
+    .header-content {
+        text-align: left;
+    }
+    
+    .range-inputs {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .range-separator {
+        text-align: center;
+        padding: var(--spacing-sm) 0;
+    }
+    
+    .range-unit {
+        justify-self: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 0 var(--spacing-sm);
+    }
+    
+    .system-metrics {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .sensor-types {
+        gap: var(--spacing-md);
+    }
+    
+    .sensor-type-item {
+        padding-bottom: var(--spacing-md);
+    }
+}
+
+@media (max-width: 576px) {
+    .preview-icon i {
+        font-size: 2.5rem;
+    }
+    
+    .form-input,
+    .form-select {
+        height: 52px;
+        font-size: 16px; /* Evita zoom em iOS */
+    }
+    
+    /* Ajustes específicos para mobile */
+    .input-wrapper .form-input,
+    .select-wrapper .form-select {
+        padding-left: 3rem !important;
+    }
+    
+    .input-wrapper .input-icon,
+    .select-wrapper .select-icon {
+        left: 0.75rem !important;
+        font-size: 0.9rem;
+    }
+    
+    .input-wrapper .input-suffix {
+        right: 0.75rem !important;
+        font-size: 0.8rem;
+    }
+    
+    .range-inputs {
+        gap: var(--spacing-sm);
+    }
+    
+    .range-inputs .input-wrapper .form-input {
+        padding-left: var(--spacing-sm) !important;
+        padding-right: 2.5rem !important;
+    }
+    
+    .sensor-type-header {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-xs);
+    }
+    
+    .sensor-type-description {
+        text-align: center;
+    }
+}
+
+/* Animações específicas */
+@keyframes sensorTypeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.sensor-type-item {
+    animation: sensorTypeSlideIn 0.4s ease-out;
+}
+
+.sensor-type-item:nth-child(1) { animation-delay: 0.1s; }
+.sensor-type-item:nth-child(2) { animation-delay: 0.2s; }
+.sensor-type-item:nth-child(3) { animation-delay: 0.3s; }
+
+/* Estados visuais melhorados */
+.form-input:valid:not(:placeholder-shown),
+.form-select:valid {
+    border-color: var(--waterwise-success);
+}
+
+.form-input:valid:not(:placeholder-shown) + .input-icon,
+.form-select:valid + .select-icon {
+    color: var(--waterwise-success);
+}
+
+/* Toast customizado */
+.toast {
+    background: var(--waterwise-card);
+    border: 1px solid var(--waterwise-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    color: var(--waterwise-text);
+}
+
+/* Melhorias de acessibilidade */
+.form-input:focus-visible,
+.form-select:focus-visible,
+.btn:focus-visible {
+    outline: 2px solid rgba(0, 255, 204, 0.5);
+    outline-offset: 2px;
+}
+
+/* Estados de touch para dispositivos móveis */
+@media (hover: none) {
+    .sensor-type-item:active {
+        background: rgba(255, 255, 255, 0.05);
+        transform: scale(0.98);
+    }
+    
+    .sidebar-card:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Otimizações de performance */
+.form-section,
+.sidebar-card,
+.sensor-preview {
+    will-change: transform;
+}
+
+/* Layout para impressão */
+@media print {
+    
+    .form-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-section {
+        break-inside: avoid;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+    
+    .page-title {
+        color: #000 !important;
+        font-size: 18pt;
+    }
+    
+    .form-input,
+    .form-select {
+        border: 1px solid #ddd !important;
+        background: white !important;
+        color: #000 !important;
+    }
+}
+
+/* Estados específicos do preview */
+.sensor-preview.preview-selected .spec-value {
+    color: var(--waterwise-primary);
+    font-weight: 700;
+}
+
+.sensor-preview.preview-selected .preview-title {
+    color: var(--waterwise-success);
+}
+
+/* Transições suaves */
+.sensor-preview,
+.sensor-type-item,
+.metric-item {
+    transition: all var(--transition-fast);
+}
+
+/* Indicadores visuais para campos obrigatórios */
+.form-label::after {
+    content: '';
+}
+
+.form-group:has([required]) .form-label::after {
+    content: ' *';
+    color: var(--waterwise-danger);
+    font-weight: bold;
+}
